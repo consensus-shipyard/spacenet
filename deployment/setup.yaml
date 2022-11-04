@@ -1,0 +1,70 @@
+---
+- name: Initialize Mir benchmark VM
+  hosts: all
+  gather_facts: False
+  become: False
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/home/{{ ansible_user }}/go/bin"
+  tasks:
+    - name: "Install Go"
+      become: True
+      community.general.snap:
+        name:
+          - go
+        classic: True
+        channel: 1.18/stable
+        state: present
+    - name: "Install snaps"
+      become: True
+      community.general.snap:
+        name:
+          - tmux
+        classic: True
+        state: present
+    - name: "Run apt update"
+      become: True
+      ansible.builtin.apt:
+        update_cache: True
+    - name: "Install apt packages"
+      become: True
+      ansible.builtin.apt:
+        name:
+          - mesa-opencl-icd
+          - ocl-icd-opencl-dev
+          - gcc
+          - git
+          - bzr
+          - jq
+          - pkg-config
+          - curl
+          - clang
+          - build-essential
+          - hwloc
+          - libhwloc-dev
+          - wget
+          - make
+        state: present
+    - name: "Run apt upgrade"
+      become: True
+      ansible.builtin.apt:
+        upgrade: yes
+    - name: Clone Lotus repo from GitHub
+      ansible.builtin.git:
+        repo: "{{ git_repo }}"
+        dest: ~/lotus
+    - name: "Check out the selected code version: {{ git_version }}"
+      ansible.builtin.git:
+        repo: "{{ git_repo }}"
+        dest: ~/lotus
+        single_branch: True
+        version: "{{ git_version }}"
+        force: True
+    - name: compile spacenet code
+      make:
+        chdir: ~/lotus
+        target: spacenet
+    - name: "Run setup script"
+      ansible.builtin.script:
+        # Single quotes are important here (https://github.com/ansible/ansible/issues/44897)
+        cmd: scripts/setup.sh
+...

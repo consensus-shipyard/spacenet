@@ -1,0 +1,15 @@
+# SSH key for ansible to use when logging in the remote machines.
+ansible_ssh_private_key_file: ~/.ssh/spacenet-ec2-key # Meaningless example value. Set to your own ssh key location.
+
+# Git repository to obtain the Lotus code from.
+git_repo: https://github.com/consensus-shipyard/lotus.git
+
+# Version of the code to check out from the Mir repository at setup. This can be a branch name, a commit hash, etc...
+git_version: "adlrocha/mir-sync" # Meaningless example value. Set to desired code version to check out from Git.
+
+# Username to use when logging in the remote machines.
+ansible_user: ubuntu # Example value (default on EC2 Ubuntu virtual machines)
+
+# Other variables Ansible might use, probably no need to touch those...
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+host_count: "{{ groups['all'] | length }}"
