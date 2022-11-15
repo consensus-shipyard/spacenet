@@ -16,7 +16,7 @@ import (
 	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 
 	"github.com/filecoin-project/go-address"
-	jsonrpc "github.com/filecoin-project/go-jsonrpc"
+	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/api"
 	lotusapi "github.com/filecoin-project/lotus/api"
@@ -124,6 +124,17 @@ func (s *server) fundRequest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Errorf("error unmarshaling json request: %w", err)
 		errResponse(w, "error unmarshaling request")
+		return
+	}
+
+	addr, err := address.NewFromString(req.Address)
+	if err != nil {
+		errResponse(w, err.Error())
+		return
+	}
+	err = s.fundAddr(addr, abi.NewTokenAmount(1000))
+	if err != nil {
+		errResponse(w, err.Error())
 		return
 	}
 
