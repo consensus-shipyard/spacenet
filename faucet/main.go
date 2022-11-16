@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/ipfs/go-datastore"
-	levelds "github.com/ipfs/go-ds-leveldb"
+	db "github.com/ipfs/go-ds-leveldb"
 	logging "github.com/ipfs/go-log/v2"
 	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 
@@ -110,6 +112,138 @@ func home(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, p)
 }
 
+var (
+	TotalMax                 = uint64(4000)
+	AddressMax               = uint64(2000)
+	TokenAmount              = abi.NewTokenAmount(1000)
+	TotalAmountKey           = datastore.NewKey("totalAmount")
+	TotalLatestWithdrawalKey = datastore.NewKey("totalLatestWithdrawal")
+)
+
+func AddrKey(addr address.Address) datastore.Key {
+	return datastore.NewKey(addr.String() + ":value")
+}
+
+func LatestWithdrawalKey(addr address.Address) datastore.Key {
+	return datastore.NewKey(addr.String() + ":latestWithdrawal")
+}
+
+func (s *server) fundable(targetAddr address.Address, targetValue abi.TokenAmount) error {
+	var totalAmount uint64
+	b, err := s.db.Get(context.TODO(), TotalAmountKey)
+	if err != nil && err != datastore.ErrNotFound {
+		return fmt.Errorf("failed to get total amount: %w", err)
+	}
+	if err == datastore.ErrNotFound {
+		totalAmount = 0
+	} else {
+		totalAmount = binary.BigEndian.Uint64(b)
+	}
+	log.Infof("total amount: %v", totalAmount)
+
+	var targetAmount uint64
+	b, err = s.db.Get(context.TODO(), AddrKey(targetAddr))
+	if err != nil && err != datastore.ErrNotFound {
+		return fmt.Errorf("failed to get addr token value: %w", err)
+	}
+	if err == datastore.ErrNotFound {
+		targetAmount = 0
+	} else {
+		targetAmount = binary.BigEndian.Uint64(b)
+	}
+
+	log.Infof("%v address amount: %v", targetAddr, targetAmount)
+
+	var targetLatestWithdrawal time.Time
+	b, err = s.db.Get(context.TODO(), LatestWithdrawalKey(targetAddr))
+	if err != nil && err != datastore.ErrNotFound {
+		return fmt.Errorf("failed to get latest withdrawal: %w", err)
+	}
+	if err == datastore.ErrNotFound {
+		targetLatestWithdrawal = time.Now().Add(-time.Hour * 24)
+	} else {
+		err = targetLatestWithdrawal.UnmarshalBinary(b)
+		if err != nil && err != datastore.ErrNotFound {
+			return fmt.Errorf("failed to unmarshal latest withdrawal: %w", err)
+		}
+	}
+
+	log.Infof("%v address latest withdrawal: %v", targetAddr, targetLatestWithdrawal)
+
+	var totalLatestWithdrawal time.Time
+	b, err = s.db.Get(context.TODO(), TotalLatestWithdrawalKey)
+	if err != nil && err != datastore.ErrNotFound {
+		return fmt.Errorf("failed to get total latest withdrawal: %v", err)
+	}
+	if err == datastore.ErrNotFound {
+		totalLatestWithdrawal = time.Now().Add(-time.Hour * 24)
+	} else {
+		err = totalLatestWithdrawal.UnmarshalBinary(b)
+		if err != nil && err != datastore.ErrNotFound {
+			return fmt.Errorf("failed to unmarshal total latest withdrawal: %w", err)
+		}
+	}
+
+	log.Infof("latest total withdrawal: %v", totalLatestWithdrawal)
+
+	if time.Since(targetLatestWithdrawal) >= 24*time.Hour {
+		fmt.Println(1)
+		targetAmount = 0
+		targetLatestWithdrawal = time.Now()
+	}
+
+	if time.Since(totalLatestWithdrawal) >= 24*time.Hour {
+		fmt.Println(2)
+		totalAmount = 0
+		totalLatestWithdrawal = time.Now()
+	}
+
+	if totalAmount < TotalMax && targetAmount < AddressMax {
+		fmt.Println(3)
+		totalAmount += targetValue.Uint64()
+		targetAmount += targetValue.Uint64()
+	} else {
+		fmt.Println(5)
+		return fmt.Errorf("transaction exceeds allowed funds")
+	}
+
+	fmt.Println(4)
+
+	b = make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, targetAmount)
+	err = s.db.Put(context.TODO(), AddrKey(targetAddr), b)
+	if err != nil {
+		return fmt.Errorf("failed to put target amount: %v", err)
+	}
+
+	b = make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, totalAmount)
+	err = s.db.Put(context.TODO(), TotalAmountKey, b)
+	if err != nil {
+		return fmt.Errorf("failed to put total amount: %v", err)
+	}
+
+	b, err = targetLatestWithdrawal.MarshalBinary()
+	if err != nil {
+		return fmt.Errorf("failed to marshal latest withdrawal")
+	}
+	err = s.db.Put(context.TODO(), LatestWithdrawalKey(targetAddr), b)
+	if err != nil {
+		return fmt.Errorf("failed to put latest withdrawal: %v", err)
+	}
+
+	b, err = totalLatestWithdrawal.MarshalBinary()
+	if err != nil {
+		return fmt.Errorf("failed to marshal total latest withdrawal")
+	}
+	err = s.db.Put(context.TODO(), TotalLatestWithdrawalKey, b)
+	if err != nil {
+		return fmt.Errorf("failed to put latest total withdrawal: %v", err)
+	}
+
+	return nil
+}
+
 // TODO: Finalize this method.
 func (s *server) fundRequest(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
@@ -131,7 +265,12 @@ func (s *server) fundRequest(w http.ResponseWriter, r *http.Request) {
 		errResponse(w, err.Error())
 		return
 	}
-	err = s.fundAddr(addr, abi.NewTokenAmount(1000))
+	err = s.fundable(addr, TokenAmount)
+	if err != nil {
+		errResponse(w, err.Error())
+		return
+	}
+	err = s.fundAddr(addr, TokenAmount)
 	if err != nil {
 		errResponse(w, err.Error())
 		return
@@ -139,7 +278,6 @@ func (s *server) fundRequest(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	errResponse(w, "")
 	return
 
 }
@@ -151,17 +289,18 @@ func errResponse(w http.ResponseWriter, errStr string) {
 		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
 	}
 	w.Write(jsonResp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (s *server) fundAddr(addr address.Address, value abi.TokenAmount) error {
-	// TODO: verify if the address is allowed to receive funds this soon.
-	// (prevent DDoSing)
 	ctx := context.TODO()
 
 	FaucetAddr, err := address.NewFromString("f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq")
 	if err != nil {
 		panic(err)
 	}
+
 	msg, err := s.lotus.MpoolPushMessage(ctx, &types.Message{
 		To:     addr,
 		From:   FaucetAddr,
@@ -186,7 +325,7 @@ func (s *server) fundAddr(addr address.Address, value abi.TokenAmount) error {
 }
 
 func NewLevelDB(path string, readonly bool) (datastore.Batching, error) {
-	return levelds.NewDatastore(path, &levelds.Options{
+	return db.NewDatastore(path, &db.Options{
 		Compression: ldbopts.NoCompression,
 		NoSync:      false,
 		Strict:      ldbopts.StrictAll,
