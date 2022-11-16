@@ -16,10 +16,9 @@ import (
 	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/lotus/api"
-	lotusapi "github.com/filecoin-project/lotus/api"
+	"github.com/filecoin-project/lotus/api/client"
+	"github.com/filecoin-project/lotus/api/v0api"
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
 )
@@ -27,7 +26,7 @@ import (
 var log = logging.Logger("faucet")
 
 type server struct {
-	lotus  lotusapi.FullNodeStruct
+	lotus  v0api.FullNode
 	db     datastore.Datastore
 	faucet address.Address
 }
@@ -61,19 +60,19 @@ func main() {
 	// FIXME: Pass this value in a command line flag.
 	addr := "127.0.0.1:1230"
 
-	var api lotusapi.FullNodeStruct
-	closer, err := jsonrpc.NewMergeClient(context.Background(), "ws://"+addr+"/rpc/v0", "Filecoin", []interface{}{&api.Internal, &api.CommonStruct.Internal}, headers)
-	if err != nil {
-		log.Fatalf("connecting with lotus failed: %s", err)
-	}
-	defer closer()
-	log.Infof("Successfully connected to Lotus node")
 	// FIXME: Make this configurable
 	db, err := NewLevelDB("./db", false)
 	if err != nil {
 		log.Errorf("couldn´t initialize leveldb database: %w", err)
 	}
-	s := server{lotus: api, db: db}
+
+	res, closer, err := client.NewFullNodeRPCV0(context.Background(), "ws://"+addr+"/rpc/v0", headers)
+	if err != nil {
+		log.Fatalf("connecting with lotus failed: %s", err)
+	}
+	defer closer()
+	log.Infof("Successfully connected to Lotus node")
+	s := server{lotus: res, db: db}
 
 	// Starting http server.
 	r := mux.NewRouter().StrictSlash(true)
@@ -158,25 +157,28 @@ func (s *server) fundAddr(addr address.Address, value abi.TokenAmount) error {
 	// TODO: verify if the address is allowed to receive funds this soon.
 	// (prevent DDoSing)
 	ctx := context.TODO()
-	smsg, aerr := s.lotus.MpoolPushMessage(ctx, &types.Message{
+
+	FaucetAddr, err := address.NewFromString("f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq")
+	if err != nil {
+		panic(err)
+	}
+	msg, err := s.lotus.MpoolPushMessage(ctx, &types.Message{
 		To:     addr,
-		From:   s.faucet,
+		From:   FaucetAddr,
 		Value:  value,
 		Method: 0, // methodSend
 		Params: nil,
 	}, nil)
-	if aerr != nil {
-		log.Errorw("Error pushing join subnet message to parent api", "err", aerr)
-		return aerr
+	if err != nil {
+		log.Errorw("Error pushing join subnet message to parent api", "err", err)
+		return err
 	}
 
-	msg := smsg.Cid()
-
 	// wait state message.
-	_, aerr = s.lotus.StateWaitMsg(ctx, msg, build.MessageConfidence, api.LookbackNoLimit, true)
-	if aerr != nil {
-		log.Errorw("Error waiting for message to be committed", "err", aerr)
-		return aerr
+	_, err = s.lotus.StateWaitMsg(ctx, msg.Cid(), build.MessageConfidence)
+	if err != nil {
+		log.Errorw("Error waiting for message to be committed", "err", err)
+		return err
 	}
 
 	log.Infow("Address funded successfully")
