@@ -16,9 +16,9 @@ import (
 func Handler(log *logging.ZapEventLogger, lotus v0api.FullNode, db datastore.Batching, shutdown chan os.Signal, faucet address.Address) http.Handler {
 	r := mux.NewRouter().StrictSlash(true)
 
-	srv := NewSpaceService(log, lotus, db, faucet)
+	srv := NewFaucetService(log, lotus, db, faucet)
 
-	r.HandleFunc("/fund", srv.fundRequest).Methods("POST")
+	r.HandleFunc("/fund", srv.fund).Methods("POST")
 	r.HandleFunc("/", home)
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
 

@@ -119,10 +119,6 @@ func run(log *logging.ZapEventLogger) error {
 
 	log.Infow("startup", "status", "initializing authentication support")
 
-	// Starting lotus node.
-	// run lotus auth create-token --perm <read,write,sign,admin>
-	// to get an auth-token
-
 	var authToken string
 
 	if cfg.Lotus.AuthToken == "" {
