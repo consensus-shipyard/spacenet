@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/filecoin-project/faucet/internal/db"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/api/v0api"
+	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
 )
@@ -20,16 +21,24 @@ var (
 	TotalWithdrawalLimit   = uint64(1000)
 	AddressWithdrawalLimit = uint64(20)
 	WithdrawalAmount       = uint64(10)
+
+	ErrExceedTotalAllowed = fmt.Errorf("transaction exceeds total allowed funds per day")
+	ErrExceedAddrAllowed  = fmt.Errorf("transaction to exceeds daily allowed funds per address")
 )
 
 type Service struct {
 	log    *logging.ZapEventLogger
-	lotus  v0api.FullNode
+	lotus  PushWaiter
 	db     *db.Database
 	faucet address.Address
 }
 
-func NewService(log *logging.ZapEventLogger, lotus v0api.FullNode, store datastore.Datastore, faucet address.Address) *Service {
+type PushWaiter interface {
+	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec) (*types.SignedMessage, error)
+	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64) (*api.MsgLookup, error)
+}
+
+func NewService(log *logging.ZapEventLogger, lotus PushWaiter, store datastore.Datastore, faucet address.Address) *Service {
 	return &Service{
 		log:    log,
 		lotus:  lotus,
@@ -62,11 +71,11 @@ func (s *Service) FundAddress(ctx context.Context, targetAddr address.Address) e
 	}
 
 	if totalInfo.Amount >= TotalWithdrawalLimit {
-		return fmt.Errorf("transaction to %v exceeds total allowed funds per day of %v FIL", targetAddr, TotalWithdrawalLimit)
+		return ErrExceedTotalAllowed
 	}
 
 	if addrInfo.Amount >= AddressWithdrawalLimit {
-		return fmt.Errorf("transaction to %v exceeds daily allowed funds per address of %v FIL", targetAddr, AddressWithdrawalLimit)
+		return ErrExceedAddrAllowed
 	}
 
 	s.log.Infof("funding %v is allowed", targetAddr)

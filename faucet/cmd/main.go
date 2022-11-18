@@ -18,10 +18,11 @@ import (
 	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 	"go.uber.org/zap"
 
-	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/filecoin-project/lotus/api/v0api"
+
+	app "github.com/filecoin-project/faucet/internal/http"
 )
 
 var build = "develop"
@@ -61,7 +62,7 @@ func run(log *logging.ZapEventLogger) error {
 			AuthToken string
 		}
 		DB struct {
-			Path     string `conf:"default:./db"`
+			Path     string `conf:"default:./_db_data"`
 			Readonly bool   `conf:"default:false"`
 		}
 	}{

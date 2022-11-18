@@ -10,10 +10,9 @@ import (
 
 	"github.com/filecoin-project/faucet/internal/faucet"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/api/v0api"
 )
 
-func Handler(log *logging.ZapEventLogger, lotus v0api.FullNode, db datastore.Batching, shutdown chan os.Signal, faucetAddr address.Address) http.Handler {
+func Handler(log *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, faucetAddr address.Address) http.Handler {
 	faucetService := faucet.NewService(log, lotus, db, faucetAddr)
 
 	srv := NewWebService(log, faucetService)
