@@ -7,17 +7,13 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/filecoin-project/faucet/internal/data"
-	"github.com/filecoin-project/faucet/internal/db"
 	"github.com/filecoin-project/faucet/internal/faucet"
 	"github.com/filecoin-project/faucet/internal/platform/web"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/lotus/api/v0api"
 )
 
 type WebService struct {
 	log    *logging.ZapEventLogger
-	lotus  v0api.FullNode
-	db     *db.Database
 	faucet *faucet.Service
 }
 
@@ -52,7 +48,6 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	return
 }
 
 func (h *WebService) handleHome(w http.ResponseWriter, r *http.Request) {
