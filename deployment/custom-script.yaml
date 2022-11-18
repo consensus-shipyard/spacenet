@@ -1,6 +1,10 @@
+# Runs the scripts/custom.sh script. This is meant as a convenience tool for executing ad-hoc scripts.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
 ---
 - name: Run custom script
-  hosts: all
+  hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   tasks:

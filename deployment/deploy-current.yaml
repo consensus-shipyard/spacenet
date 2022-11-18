@@ -1,0 +1,22 @@
+# Deploys the bootstrap and the validators using existing binaries.
+# This playbook still cleans the lotus daemon state, but neither updates nor recompiles the code.
+# Performs the state cleanup by running clean.yaml,
+# potentially producing and ignoring some errors, if nothing is running on the hosts - this is normal.
+#
+# The nodes variable must not be set, as this playbook must distinguish between different kinds of nodes
+# (such as bootstrap and validators).
+
+---
+- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Verify that nodes variable is not defined
+      fail: msg="Variable nodes must not be defined (nodes set to '{{ nodes }}')"
+      when: nodes is defined
+
+- import_playbook: clean.yaml
+- import_playbook: generate-genesis.yaml
+- import_playbook: start-bootstrap.yaml
+- import_playbook: start-daemons.yaml
+- import_playbook: start-validators.yaml
+...

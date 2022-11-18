@@ -1,0 +1,18 @@
+# Kills running Lotus daemon and Mir validator.
+# Does not touch their persisted state or the code and binaries.
+# Reports but ignores errors, so it can be used even if the processes to be killed are not running.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Stop all nodes and delete their state
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: "Execute cleanup script"
+      ansible.builtin.script:
+        cmd: scripts/kill.sh
+      ignore_errors: True
+...

@@ -1,0 +1,17 @@
+# Performs deep cleaning of the host machines.
+# Runs clean.yaml and, in addition, deletes the cloned repository with the lotus code and binaries.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- import_playbook: clean.yaml
+- name: Delete the whole lotus state
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  tasks:
+    - name: Remove the whole repository with Lotus code
+      file:
+        state: absent
+        path: ~/lotus
+...

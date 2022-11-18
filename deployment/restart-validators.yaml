@@ -1,0 +1,53 @@
+# Restarts a given set of validators.
+# For safety, does NOT default to restarting all validators
+# and the set of hosts to restart must be explicitly given using --extra-vars "nodes=..."
+#
+# Note that this playbook always affects all hosts, regardless of the value of the nodes variable.
+# This is due to the necessity of reconnecting all daemons to the restarted one.
+
+---
+- name: Make sure nodes are specified explicitly
+  hosts: "{{ nodes }}"
+  gather_facts: False
+  tasks:
+
+
+- import_playbook: kill.yaml
+- import_playbook: start-daemons.yaml
+
+
+- name: Reconnect Lotus daemons
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Collect Lotus daemon addresses
+      ansible.builtin.fetch:
+        src: .lotus/lotus-addr
+        dest: tmp-lotus-addrs
+
+
+    - name: Combine Lotus daemon addresses into a single file
+      run_once: True
+      delegate_to: localhost
+      shell: 'rm -f lotus-addrs && cat tmp-lotus-addrs/*/.lotus/lotus-addr >> lotus-addrs && rm -r tmp-lotus-addrs'
+
+
+    - name: Copy Lotus daemon address file to all nodes
+      ansible.builtin.copy:
+        src: lotus-addrs
+        dest: .lotus/
+
+
+    - name: Connect all Lotus daemons to each other
+      ansible.builtin.script:
+        cmd: scripts/connect-daemon.sh
+
+
+- name: Start only the specified validators
+  hosts: "{{ nodes }}"
+  gather_facts: False
+  tasks:
+    - name: Start validators
+      ansible.builtin.script:
+        cmd: scripts/start-validator.sh
+...

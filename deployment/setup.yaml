@@ -1,30 +1,24 @@
+# Sets up the environment for running the Lotus daemon and validator.
+# This includes installing the necessary packages, fetching the Lotus code, and compiling it.
+# It does not start any nodes. See start-* and deploy-*.yaml for starting the nodes.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
 ---
 - name: Initialize Mir benchmark VM
-  hosts: all
+  hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   environment:
     PATH: "{{ ansible_env.PATH }}:/home/{{ ansible_user }}/go/bin"
   tasks:
-    - name: "Install Go"
-      become: True
-      community.general.snap:
-        name:
-          - go
-        classic: True
-        channel: 1.18/stable
-        state: present
-    - name: "Install snaps"
-      become: True
-      community.general.snap:
-        name:
-          - tmux
-        classic: True
-        state: present
+
     - name: "Run apt update"
       become: True
       ansible.builtin.apt:
         update_cache: True
+
+
     - name: "Install apt packages"
       become: True
       ansible.builtin.apt:
@@ -43,15 +37,23 @@
           - libhwloc-dev
           - wget
           - make
+          - golang
+          - tmux
         state: present
+
+
     - name: "Run apt upgrade"
       become: True
       ansible.builtin.apt:
         upgrade: yes
+
+
     - name: Clone Lotus repo from GitHub
       ansible.builtin.git:
         repo: "{{ git_repo }}"
         dest: ~/lotus
+
+
     - name: "Check out the selected code version: {{ git_version }}"
       ansible.builtin.git:
         repo: "{{ git_repo }}"
@@ -59,12 +61,15 @@
         single_branch: True
         version: "{{ git_version }}"
         force: True
+
+
     - name: compile spacenet code
       make:
         chdir: ~/lotus
         target: spacenet
+
+
     - name: "Run setup script"
       ansible.builtin.script:
-        # Single quotes are important here (https://github.com/ansible/ansible/issues/44897)
         cmd: scripts/setup.sh
 ...
