@@ -10,16 +10,16 @@ import (
 
 	"github.com/filecoin-project/faucet/internal/db"
 	"github.com/filecoin-project/go-address"
-	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/api/v0api"
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
 )
 
 var (
-	TotalWithdrawalLimit   = uint64(4000)
-	AddressWithdrawalLimit = uint64(2000)
-	WithdrawalAmount       = abi.NewTokenAmount(1000)
+	// Amounts of tokens in FIL.
+	TotalWithdrawalLimit   = uint64(1000)
+	AddressWithdrawalLimit = uint64(20)
+	WithdrawalAmount       = uint64(10)
 )
 
 type Service struct {
@@ -61,8 +61,12 @@ func (s *Service) FundAddress(ctx context.Context, targetAddr address.Address) e
 		totalInfo.LatestWithdrawal = time.Now()
 	}
 
-	if totalInfo.Amount >= TotalWithdrawalLimit || addrInfo.Amount >= AddressWithdrawalLimit {
-		return fmt.Errorf("transaction to %v exceeds allowed funds", targetAddr)
+	if totalInfo.Amount >= TotalWithdrawalLimit {
+		return fmt.Errorf("transaction to %v exceeds total allowed funds per day of %v FIL", targetAddr, TotalWithdrawalLimit)
+	}
+
+	if addrInfo.Amount >= AddressWithdrawalLimit {
+		return fmt.Errorf("transaction to %v exceeds daily allowed funds per address of %v FIL", targetAddr, AddressWithdrawalLimit)
 	}
 
 	s.log.Infof("funding %v is allowed", targetAddr)
@@ -73,8 +77,8 @@ func (s *Service) FundAddress(ctx context.Context, targetAddr address.Address) e
 		return fmt.Errorf("failt to push message: %w", err)
 	}
 
-	addrInfo.Amount += WithdrawalAmount.Uint64()
-	totalInfo.Amount += WithdrawalAmount.Uint64()
+	addrInfo.Amount += WithdrawalAmount
+	totalInfo.Amount += WithdrawalAmount
 
 	if err = s.db.UpdateAddrInfo(ctx, targetAddr, addrInfo); err != nil {
 		return err
@@ -91,7 +95,7 @@ func (s *Service) pushMessage(ctx context.Context, addr address.Address) error {
 	msg, err := s.lotus.MpoolPushMessage(ctx, &types.Message{
 		To:     addr,
 		From:   s.faucet,
-		Value:  WithdrawalAmount,
+		Value:  types.FromFil(WithdrawalAmount),
 		Method: 0, // method Send
 		Params: nil,
 	}, nil)

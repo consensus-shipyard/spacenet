@@ -21,6 +21,7 @@ import (
 	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
+	"github.com/filecoin-project/lotus/api/v0api"
 )
 
 var build = "develop"
@@ -151,6 +152,11 @@ func run(log *logging.ZapEventLogger) error {
 		return fmt.Errorf("failet to parse Faucet address: %v", err)
 	}
 
+	// sanity-check to see if the node owns the key.
+	if err := verifyWallet(context.Background(), lotusNode, faucetAddr); err != nil {
+		return fmt.Errorf("faucet wallet sanity-check failed: %s", err)
+	}
+
 	// =========================================================================
 	// Start API Service
 
@@ -204,4 +210,18 @@ func getToken() (string, error) {
 	}
 	token, err := os.ReadFile(path.Join(lotusPath, "/token"))
 	return string(token), err
+}
+
+func verifyWallet(ctx context.Context, api v0api.FullNode, addr address.Address) error {
+	l, err := api.WalletList(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, w := range l {
+		if w == addr {
+			return nil
+		}
+	}
+	return fmt.Errorf("faucet wallet not owned by peer targeted by faucet server")
 }
