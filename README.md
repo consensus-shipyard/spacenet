@@ -61,7 +61,7 @@ git checkout adlrocha/mir-sync
 ```
 make spacenet
 ```
-- With that, you are ready to run your spacenet daemon and connect to the network by connecting to any its bootstrapper nodes.
+- With that, you are ready to run your spacenet daemon and connect to the network by connecting to any its bootstrap nodes.
 ```
 ./lotus daemon --genesis=spacenet.car
 ```
