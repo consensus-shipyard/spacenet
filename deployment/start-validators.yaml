@@ -1,0 +1,40 @@
+# Starts the Mir validators.
+# Assumes that the Lotus daemons are up and running (see start-daemons.yaml).
+#
+# Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Start Mir validators
+  hosts: "{{nodes | default('validators')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Generate validator identities
+      ansible.builtin.script:
+        cmd: scripts/generate-validator-identity.sh
+        creates: .lotus/mir-validator-identity
+
+
+    - name: Collect validator identities
+      ansible.builtin.fetch:
+        src: .lotus/mir-validator-identity
+        dest: tmp-validator-identities
+
+
+    - name: Combine validator identities into a single file
+      run_once: True
+      delegate_to: localhost
+      shell: 'rm -f mir.validators && cat tmp-validator-identities/*/.lotus/mir-validator-identity >> mir.validators && rm -r tmp-validator-identities'
+
+
+    - name: Copy validator identity file to all nodes
+      ansible.builtin.copy:
+        src: mir.validators
+        dest: .lotus/
+
+
+    - name: Start validators
+      ansible.builtin.script:
+        cmd: scripts/start-validator.sh
+...

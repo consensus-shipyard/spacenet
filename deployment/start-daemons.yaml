@@ -1,0 +1,20 @@
+# Starts the Lotus daemons and creates connections among them and to the bootstrap node.
+# Assumes that the bootstrap node is up and running (see start-bootstrap.yaml).
+#
+# Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Start Lotus daemons
+  hosts: "{{nodes | default('validators')}}"
+  gather_facts: False
+  become: False
+  vars:
+    bootstrap_identity: "{{ lookup('file', 'bootstrap-identity') }}"
+  tasks:
+
+    - name: Start Lotus daemons
+      ansible.builtin.script:
+        cmd: scripts/start-daemon.sh '{{ bootstrap_identity }}'
+
+- import_playbook: connect-daemons.yaml
+...

@@ -1,0 +1,24 @@
+# Starts the bootstrap node and downloads its identity to localhost.
+# Assumes the host has been set up and the genesis block has been generated
+# (using setup.yaml and generate-genesis.yaml respectively).
+#
+# Applies to the bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Start bootstrap node
+  hosts: "{{nodes | default('bootstrap')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Start bootstrap node
+      ansible.builtin.script:
+        cmd: scripts/start-bootstrap.sh
+    - name: Get bootstrap node identity
+
+
+      ansible.builtin.fetch:
+        src: .lotus/lotus-addr
+        dest: bootstrap-identity
+        flat: True
+...

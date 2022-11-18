@@ -11,5 +11,5 @@ git_version: "adlrocha/mir-sync" # Meaningless example value. Set to desired cod
 ansible_user: ubuntu # Example value (default on EC2 Ubuntu virtual machines)
 
 # Other variables Ansible might use, probably no need to touch those...
-ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ServerAliveInterval=60'
 host_count: "{{ groups['all'] | length }}"

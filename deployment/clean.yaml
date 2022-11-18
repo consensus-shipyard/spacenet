@@ -1,0 +1,18 @@
+# Kills running Lotus daemon and Mir validator and deletes their associated state.
+# Does not touch the code and binaries.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- import_playbook: kill.yaml
+
+- name: Delete the whole lotus state
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  tasks:
+    - name: "Delete the .lotus repo directory"
+      file:
+        state: absent
+        path: ~/.lotus
+...
