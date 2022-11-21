@@ -25,9 +25,10 @@ import (
 )
 
 type FaucetTests struct {
-	handler http.Handler
-	store   *datastore.Datastore
-	db      *faucetDB.Database
+	handler   http.Handler
+	store     *datastore.Datastore
+	db        *faucetDB.Database
+	faucetCfg *faucet.Config
 }
 
 const (
@@ -62,14 +63,22 @@ func Test_Faucet(t *testing.T) {
 
 	shutdown := make(chan os.Signal, 1)
 
-	srv := handler.Handler(log, lotus, store, shutdown, addr)
+	cfg := faucet.Config{
+		FaucetAddress:          addr,
+		TotalWithdrawalLimit:   1000,
+		AddressWithdrawalLimit: 20,
+		WithdrawalAmount:       10,
+	}
+
+	srv := handler.Handler(log, lotus, store, shutdown, &cfg)
 
 	db := faucetDB.NewDatabase(store)
 
 	tests := FaucetTests{
-		handler: srv,
-		store:   store,
-		db:      db,
+		handler:   srv,
+		store:     store,
+		db:        db,
+		faucetCfg: &cfg,
 	}
 
 	t.Run("fundAddress201", tests.fundAddress201)
@@ -99,7 +108,7 @@ func (ft *FaucetTests) fundAddressWithMoreThanAllowed(t *testing.T) {
 	require.NoError(t, err)
 
 	err = ft.db.UpdateAddrInfo(context.Background(), targetAddr, data.AddrInfo{
-		Amount:           faucet.AddressWithdrawalLimit,
+		Amount:           ft.faucetCfg.AddressWithdrawalLimit,
 		LatestWithdrawal: time.Now(),
 	})
 	require.NoError(t, err)
@@ -119,7 +128,7 @@ func (ft *FaucetTests) fundAddressWithMoreThanAllowed(t *testing.T) {
 	require.Equal(t, http.StatusInternalServerError, w.Code)
 
 	got := w.Body.String()
-	exp := faucet.ErrExceedAddrAllowed.Error()
+	exp := faucet.ErrExceedAddrAllowedFunds.Error()
 	if !strings.Contains(got, exp) {
 		t.Logf("\t\tTest %s:\tGot : %v", t.Name(), got)
 		t.Logf("\t\tTest %s:\tExp: %v", t.Name(), exp)
@@ -130,7 +139,7 @@ func (ft *FaucetTests) fundAddressWithMoreThanAllowed(t *testing.T) {
 // fundAddressWithMoreThanAllowed tests that exceeding daily allowed funds per address is not allowed.
 func (ft *FaucetTests) fundAddressWithMoreThanTotal(t *testing.T) {
 	err := ft.db.UpdateTotalInfo(context.Background(), data.TotalInfo{
-		Amount:           faucet.TotalWithdrawalLimit,
+		Amount:           ft.faucetCfg.TotalWithdrawalLimit,
 		LatestWithdrawal: time.Now(),
 	})
 	require.NoError(t, err)
@@ -150,7 +159,7 @@ func (ft *FaucetTests) fundAddressWithMoreThanTotal(t *testing.T) {
 	require.Equal(t, http.StatusInternalServerError, w.Code)
 
 	got := w.Body.String()
-	exp := faucet.ErrExceedTotalAllowed.Error()
+	exp := faucet.ErrExceedTotalAllowedFunds.Error()
 	if !strings.Contains(got, exp) {
 		t.Logf("\t\tTest %s:\tGot : %v", t.Name(), got)
 		t.Logf("\t\tTest %s:\tExp: %v", t.Name(), exp)

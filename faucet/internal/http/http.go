@@ -9,11 +9,10 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/filecoin-project/faucet/internal/faucet"
-	"github.com/filecoin-project/go-address"
 )
 
-func Handler(log *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, faucetAddr address.Address) http.Handler {
-	faucetService := faucet.NewService(log, lotus, db, faucetAddr)
+func Handler(log *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, cfg *faucet.Config) http.Handler {
+	faucetService := faucet.NewService(log, lotus, db, cfg)
 
 	srv := NewWebService(log, faucetService)
 

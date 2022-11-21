@@ -18,6 +18,7 @@ import (
 	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 	"go.uber.org/zap"
 
+	"github.com/filecoin-project/faucet/internal/faucet"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/filecoin-project/lotus/api/v0api"
@@ -56,6 +57,10 @@ func run(log *logging.ZapEventLogger) error {
 		}
 		Filecoin struct {
 			Address string `conf:"default:f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq"`
+			// Amount of tokens that below is in FIL.
+			TotalWithdrawalLimit   uint64 `conf:"default:10000"`
+			AddressWithdrawalLimit uint64 `conf:"default:20"`
+			WithdrawalAmount       uint64 `conf:"default:10"`
 		}
 		Lotus struct {
 			APIHost   string `conf:"default:127.0.0.1:1230"`
@@ -68,7 +73,7 @@ func run(log *logging.ZapEventLogger) error {
 	}{
 		Version: conf.Version{
 			Build: build,
-			Desc:  "copyright information here",
+			Desc:  "Spacenet Faucet Service",
 		},
 	}
 
@@ -167,8 +172,13 @@ func run(log *logging.ZapEventLogger) error {
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
 	api := http.Server{
-		Addr:         cfg.Web.HTTPHost,
-		Handler:      app.Handler(log, lotusNode, db, shutdown, faucetAddr),
+		Addr: cfg.Web.HTTPHost,
+		Handler: app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
+			FaucetAddress:          faucetAddr,
+			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
+			AddressWithdrawalLimit: cfg.Filecoin.AddressWithdrawalLimit,
+			WithdrawalAmount:       cfg.Filecoin.WithdrawalAmount,
+		}),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,

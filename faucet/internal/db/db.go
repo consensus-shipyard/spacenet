@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/ipfs/go-datastore"
 
@@ -34,16 +33,11 @@ func (db *Database) GetTotalInfo(ctx context.Context) (data.TotalInfo, error) {
 		return data.TotalInfo{}, fmt.Errorf("failed to get total info: %w", err)
 	}
 	if err == datastore.ErrNotFound {
-		info = data.TotalInfo{
-			Amount:           0,
-			LatestWithdrawal: time.Now().Add(-time.Hour * 24),
-		}
-	} else {
-		if err := json.Unmarshal(b, &info); err != nil {
-			return data.TotalInfo{}, fmt.Errorf("failed to decode total info: %w", err)
-		}
+		return info, nil
 	}
-	fmt.Println(info)
+	if err := json.Unmarshal(b, &info); err != nil {
+		return data.TotalInfo{}, fmt.Errorf("failed to decode total info: %w", err)
+	}
 	return info, nil
 }
 
@@ -55,16 +49,11 @@ func (db *Database) GetAddrInfo(ctx context.Context, addr address.Address) (data
 		return data.AddrInfo{}, fmt.Errorf("failed to get addr info: %w", err)
 	}
 	if err == datastore.ErrNotFound {
-		info = data.AddrInfo{
-			Amount:           0,
-			LatestWithdrawal: time.Now().Add(-time.Hour * 24),
-		}
-	} else {
-		if err := json.Unmarshal(b, &info); err != nil {
-			return data.AddrInfo{}, fmt.Errorf("failed to decode addr info: %w", err)
-		}
+		return info, nil
 	}
-	fmt.Println(info)
+	if err := json.Unmarshal(b, &info); err != nil {
+		return data.AddrInfo{}, fmt.Errorf("failed to decode addr info: %w", err)
+	}
 	return info, nil
 }
 
