@@ -1,4 +1,4 @@
-
+const FAUCET_BACKEND="http://3.66.145.60:8000/fund";
 // When DOM is loaded this 
 // function will get executed
 $(() => {
@@ -13,7 +13,8 @@ $(() => {
 
         $.ajax({
             type: "POST",
-            url: "http://localhost:8000/fund",
+            url: FAUCET_BACKEND,
+            crossDomain: true, // set as a cross domain request
             data: data,
             success: function(resp) {
                 successAlert();

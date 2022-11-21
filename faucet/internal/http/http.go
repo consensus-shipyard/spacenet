@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/ipfs/go-datastore"
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/rs/cors"
 
 	"github.com/filecoin-project/faucet/internal/faucet"
 )
@@ -21,5 +22,10 @@ func Handler(log *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.
 	r.HandleFunc("/", srv.handleHome)
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
 
-	return r
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	return c.Handler(r)
 }
