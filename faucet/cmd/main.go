@@ -56,14 +56,14 @@ func run(log *logging.ZapEventLogger) error {
 			HTTPHost        string        `conf:"default:0.0.0.0:8000"`
 		}
 		Filecoin struct {
-			Address string `conf:"default:f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq"`
+			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
 			// Amount of tokens that below is in FIL.
 			TotalWithdrawalLimit   uint64 `conf:"default:10000"`
 			AddressWithdrawalLimit uint64 `conf:"default:20"`
 			WithdrawalAmount       uint64 `conf:"default:10"`
 		}
 		Lotus struct {
-			APIHost   string `conf:"default:127.0.0.1:1230"`
+			APIHost   string `conf:"default:127.0.0.1:1234"`
 			AuthToken string
 		}
 		DB struct {
