@@ -59,7 +59,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: scripts
+        working-directory: faucet
     steps:
       - name: Set up Golang
         uses: actions/setup-go@v3
