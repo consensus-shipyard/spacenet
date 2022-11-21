@@ -52,5 +52,5 @@ func RespondError(w http.ResponseWriter, status int, err error) {
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(resp)
+	enc.Encode(resp) // nolint
 }
