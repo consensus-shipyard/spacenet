@@ -1,6 +1,6 @@
 # Deploying Spacenet
 
-We use the [Ansible](https://www.ansible.com/) tool to deploy Spacenet nodes (and whole networks).
+We use [Ansible](https://www.ansible.com/) to deploy Spacenet nodes (and whole networks).
 The set of machines on which to deploy Spacenet must be defined in an Ansible inventory file
 (we use `hosts` as an example inventory file name in this document, but any other file name is also allowed).
 The inventory file must contain 2 host groups: `bootstrap` (with 1 host) and `validators` (with all validator hosts).
@@ -23,7 +23,7 @@ ansible-playbook -i hosts <playbook.yaml> ...
 ```
 with `hosts` being the Ansible inventory and `<playbook.yaml>` one of the provided playbooks.
 Additional playbooks can be specified in the same command and will be executed in the given sequence.
-A reference of the provided deployment playbooks is provided at the end of this document.
+A reference of the provided deployment playbooks is given at the end of this document.
 
 Running the command above applies the playbooks to their default targets,
 assuming all nodes in the inventory are part of Spacenet.
@@ -40,7 +40,7 @@ ansible-playbook -i hosts kill.yaml --extra-vars "nodes='198.51.100.3 198.51.100
 
 - Ansible installed on the local machine.
 - Ubuntu 22.04 on all remote machines (might easily work with other systems, but was tested with this one).
-- Sudo access without passowrd on remote machines.
+- Sudo access without password on remote machines.
 - SSH access to remote machines without password
 
 The file [group_vars/all.yaml](group_vars/all.yaml) contains some configuration parameters
