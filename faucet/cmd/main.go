@@ -145,7 +145,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	lotusNode, lotusCloser, err := client.NewFullNodeRPCV0(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v0", header)
 	if err != nil {
-		return fmt.Errorf("connecting to Lotus failed: %s", err)
+		return fmt.Errorf("connecting to Lotus failed: %w", err)
 	}
 	defer func() {
 		log.Infow("shutdown", "status", "stopping Lotus client support")
@@ -155,12 +155,12 @@ func run(log *logging.ZapEventLogger) error {
 
 	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
 	if err != nil {
-		return fmt.Errorf("failet to parse Faucet address: %v", err)
+		return fmt.Errorf("failed to parse Faucet address: %w", err)
 	}
 
 	// sanity-check to see if the node owns the key.
 	if err := verifyWallet(context.Background(), lotusNode, faucetAddr); err != nil {
-		return fmt.Errorf("faucet wallet sanity-check failed: %s", err)
+		return fmt.Errorf("faucet wallet sanity-check failed: %w", err)
 	}
 
 	// =========================================================================
