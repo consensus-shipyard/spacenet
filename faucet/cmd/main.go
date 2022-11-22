@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"expvar"
 	"fmt"
 	"net/http"
@@ -53,7 +54,11 @@ func run(log *logging.ZapEventLogger) error {
 			WriteTimeout    time.Duration `conf:"default:10s"`
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
-			HTTPHost        string        `conf:"default:0.0.0.0:8000"`
+			HTTPSHost       string        `conf:"default:0.0.0.0:443"`
+		}
+		TLS struct {
+			CertFile string `conf:"default:./testdata/server.cert"`
+			KeyFile  string `conf:"default:./testdata/server.key"`
 		}
 		Filecoin struct {
 			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
@@ -141,6 +146,11 @@ func run(log *logging.ZapEventLogger) error {
 	// =========================================================================
 	// Start Lotus client
 
+	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
+	if err != nil {
+		return fmt.Errorf("failed to parse Faucet address: %w", err)
+	}
+
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
 	lotusNode, lotusCloser, err := client.NewFullNodeRPCV0(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v0", header)
@@ -151,12 +161,8 @@ func run(log *logging.ZapEventLogger) error {
 		log.Infow("shutdown", "status", "stopping Lotus client support")
 		lotusCloser()
 	}()
-	log.Infow("Successfully connected to Lotus node")
 
-	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
-	if err != nil {
-		return fmt.Errorf("failed to parse Faucet address: %w", err)
-	}
+	log.Infow("Successfully connected to Lotus node")
 
 	// sanity-check to see if the node owns the key.
 	if err := verifyWallet(context.Background(), lotusNode, faucetAddr); err != nil {
@@ -171,8 +177,18 @@ func run(log *logging.ZapEventLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	cert, err := tls.LoadX509KeyPair(cfg.TLS.CertFile, cfg.TLS.KeyFile)
+	if err != nil {
+		return fmt.Errorf("failed to load TLS key pair: %w", err)
+	}
+	tlsConfig := &tls.Config{
+		MinVersion:   tls.VersionTLS12,
+		Certificates: []tls.Certificate{cert},
+	}
+
 	api := http.Server{
-		Addr: cfg.Web.HTTPHost,
+		TLSConfig: tlsConfig,
+		Addr:      cfg.Web.HTTPSHost,
 		Handler: app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
 			FaucetAddress:          faucetAddr,
 			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
@@ -189,7 +205,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	go func() {
 		log.Infow("startup", "status", "api router started", "host", api.Addr)
-		serverErrors <- api.ListenAndServe()
+		serverErrors <- api.ListenAndServeTLS(cfg.TLS.CertFile, cfg.TLS.KeyFile)
 	}()
 
 	// =========================================================================
