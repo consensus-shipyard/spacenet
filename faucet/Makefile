@@ -20,3 +20,12 @@ lint:
 .PHONY: vulncheck
 vulncheck:
 	govulncheck -v ./...
+
+.PHONY: cert
+cert:
+	mkcert -cert-file "./_cert/cert.pem" -key-file "./_cert/key.pem" faucet.com 127.0.0.1 localhost
+
+.PHONY: demo
+demo:
+	rm -rf ./_db_data
+	go run ./cmd/main.go --web-allowed-origins "https://localhost" --tls-cert-file "./_cert/cert.pem" --tls-key-file "./_cert/key.pem"

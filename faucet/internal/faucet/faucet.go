@@ -28,9 +28,11 @@ type PushWaiter interface {
 
 type Config struct {
 	FaucetAddress          address.Address
+	AllowedOrigins         []string
 	TotalWithdrawalLimit   uint64
 	AddressWithdrawalLimit uint64
 	WithdrawalAmount       uint64
+	BackendAddress         string
 }
 
 type Service struct {

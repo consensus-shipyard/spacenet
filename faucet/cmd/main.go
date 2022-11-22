@@ -51,24 +51,26 @@ func run(log *logging.ZapEventLogger) error {
 		conf.Version
 		Web struct {
 			ReadTimeout     time.Duration `conf:"default:5s"`
-			WriteTimeout    time.Duration `conf:"default:10s"`
+			WriteTimeout    time.Duration `conf:"default:60s"`
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
 			HTTPSHost       string        `conf:"default:0.0.0.0:443"`
+			BackendHost     string        `conf:"default:https://localhost:443/fund"`
+			AllowedOrigins  []string      `conf:"required"`
 		}
 		TLS struct {
-			CertFile string `conf:"default:./testdata/server.cert"`
-			KeyFile  string `conf:"default:./testdata/server.key"`
+			CertFile string
+			KeyFile  string
 		}
 		Filecoin struct {
-			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
+			Address string `conf:"default:f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq"`
 			// Amount of tokens that below is in FIL.
 			TotalWithdrawalLimit   uint64 `conf:"default:10000"`
 			AddressWithdrawalLimit uint64 `conf:"default:20"`
 			WithdrawalAmount       uint64 `conf:"default:10"`
 		}
 		Lotus struct {
-			APIHost   string `conf:"default:127.0.0.1:1234"`
+			APIHost   string `conf:"default:127.0.0.1:1230"`
 			AuthToken string
 		}
 		DB struct {
@@ -89,7 +91,7 @@ func run(log *logging.ZapEventLogger) error {
 			fmt.Println(help)
 			return nil
 		}
-		return fmt.Errorf("parsing config: %w", err)
+		return err
 	}
 
 	// =========================================================================
@@ -191,6 +193,8 @@ func run(log *logging.ZapEventLogger) error {
 		Addr:      cfg.Web.HTTPSHost,
 		Handler: app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
 			FaucetAddress:          faucetAddr,
+			AllowedOrigins:         cfg.Web.AllowedOrigins,
+			BackendAddress:         cfg.Web.BackendHost,
 			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
 			AddressWithdrawalLimit: cfg.Filecoin.AddressWithdrawalLimit,
 			WithdrawalAmount:       cfg.Filecoin.WithdrawalAmount,

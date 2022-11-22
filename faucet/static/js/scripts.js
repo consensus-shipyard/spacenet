@@ -1,5 +1,5 @@
-const FAUCET_BACKEND="http://3.66.145.60:8000/fund";
-// When DOM is loaded this 
+const FAUCET_BACKEND="{{.}}";
+// When DOM is loaded this
 // function will get executed
 $(() => {
     // function will get executed 
@@ -16,12 +16,18 @@ $(() => {
             url: FAUCET_BACKEND,
             crossDomain: true, // set as a cross domain request
             data: data,
-            success: function(resp) {
+            timeout: 60_000,
+            success: function(data, status, xhr) {
                 successAlert();
             },
-            error: function(xhr) {
-                resp = $.parseJSON(xhr.responseText);
-                errorAlert(resp.errors[0]);
+            error: function(jqXhr, textStatus, errorThrown) {
+                console.log("ajax error: ", errorThrown)
+                if (jqXhr != null && jqXhr.responseText != null ) {
+                    resp = $.parseJSON(jqXhr.responseText);
+                    errorAlert(resp.errors[0]);
+                } else {
+                    errorAlert(errorThrown);
+                }
             }
         });
     });});
