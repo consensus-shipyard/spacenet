@@ -1,3 +1,4 @@
 _db_data/
 .idea
-_cert
+_cert/*.pem
+_cert/*.key
