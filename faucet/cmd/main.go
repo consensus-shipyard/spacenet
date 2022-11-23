@@ -55,7 +55,7 @@ func run(log *logging.ZapEventLogger) error {
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
 			HTTPSHost       string        `conf:"default:0.0.0.0:443"`
-			BackendHost     string        `conf:"default:https://localhost:443/fund"`
+			BackendHost     string        `conf:"required"`
 			AllowedOrigins  []string      `conf:"required"`
 		}
 		TLS struct {
