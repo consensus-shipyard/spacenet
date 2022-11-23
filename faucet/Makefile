@@ -28,4 +28,9 @@ cert:
 .PHONY: demo
 demo:
 	rm -rf ./_db_data
+	go run ./cmd/main.go --web-host "127.0.0.1:8000" --web-allowed-origins "http://localhost:8000" --web-backend-host "http://localhost:8000/fund" --filecoin-address "f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq"
+
+.PHONY: demo-tls
+demo-tls:
+	rm -rf ./_db_data
 	go run ./cmd/main.go --web-allowed-origins "https://localhost" --web-backend-host "https://localhost:443/fund" --filecoin-address "f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq" --tls-cert-file "./_cert/cert.pem" --tls-key-file "./_cert/key.pem"

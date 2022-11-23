@@ -1,9 +1,16 @@
 # Faucet
 
 ## How to Run
+### Enabled TLS
 ```azure
-go run ./cmd/main.go --web-allowed-origins "https://frontend" --web-backend-host "https://faucet/fund" --filecoin-address "address" --tls-cert-file "path_to_cert.pem" --tls-key-file "path_to_key.pem"
+go run ./cmd/main.go --tls-enabled --web-allowed-origins "https://frontend" --web-backend-host "https://faucet/fund" --filecoin-address "address" --tls-cert-file "path_to_cert.pem" --tls-key-file "path_to_key.pem"
 ```
+### Disabled TLS
+
+```azure
+go run ./cmd/main.go --web-allowed-origins "http://frontend" --web-backend-host "https://faucet/fund" --filecoin-address "address"
+```
+
 ## Development
 To run the service even in the development mode, you must provide an X509 certificate.
 
