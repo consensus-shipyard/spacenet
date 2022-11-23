@@ -59,8 +59,8 @@ func run(log *logging.ZapEventLogger) error {
 			AllowedOrigins  []string      `conf:"required"`
 		}
 		TLS struct {
-			CertFile string
-			KeyFile  string
+			CertFile string `conf:"required"`
+			KeyFile  string `conf:"required"`
 		}
 		Filecoin struct {
 			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
@@ -120,11 +120,11 @@ func run(log *logging.ZapEventLogger) error {
 		ReadOnly:    cfg.DB.Readonly,
 	})
 	if err != nil {
-		return fmt.Errorf("couldn´t initialize leveldb database: %w", err)
+		return fmt.Errorf("couldn't initialize leveldb database: %w", err)
 	}
 
 	defer func() {
-		log.Infow("shutdown", "status", "stopping database support")
+		log.Infow("shutdown", "status", "stopping leveldb")
 		db.Close()
 	}()
 
