@@ -11,7 +11,16 @@
   become: False
   tasks:
 
-    - name: Start bootstrap node
+    - name: Copy keys to remote machine
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "lotus/{{ item }}"
+      with_items:
+          - spacenet-libp2p-bootstrap1.keyinfo
+          - spacenet_faucet.key
+
+
+    - name: Start bootstrap node and faucet
       ansible.builtin.script:
         cmd: scripts/start-bootstrap.sh
     - name: Get bootstrap node identity

@@ -42,28 +42,56 @@
         state: present
 
 
+    - name: "Work around upgrade issues on some Linux machines"
+      become: True
+      ansible.builtin.apt:
+        name:
+          - grub-efi-amd64-signed
+        only_upgrade: True
+
+
     - name: "Run apt upgrade"
       become: True
       ansible.builtin.apt:
-        upgrade: yes
+        upgrade: True
 
 
-    - name: Clone Lotus repo from GitHub
+    - name: "Clone Lotus repo from GitHub"
       ansible.builtin.git:
-        repo: "{{ git_repo }}"
+        repo: "{{ lotus_git_repo }}"
         dest: ~/lotus
 
 
-    - name: "Check out the selected code version: {{ git_version }}"
+    - name: "Check out the selected code version: {{ lotus_git_version }}"
       ansible.builtin.git:
-        repo: "{{ git_repo }}"
+        repo: "{{ lotus_git_repo }}"
         dest: ~/lotus
         single_branch: True
-        version: "{{ git_version }}"
+        version: "{{ lotus_git_version }}"
         force: True
 
 
-    - name: compile spacenet code
+    - name: "Replace mir library by a custom version ({{ replace_mir }})"
+      shell: echo '\nreplace github.com/filecoin-project/mir => {{ replace_mir }}\n' >> lotus/go.mod && cd lotus && go mod tidy
+      when: replace_mir is defined
+
+
+    - name: "Clone Spacenet repo from GitHub"
+      ansible.builtin.git:
+        repo: "{{ spacenet_git_repo }}"
+        dest: ~/spacenet
+
+
+    - name: "Check out the selected code version: {{ spacenet_git_version }}"
+      ansible.builtin.git:
+        repo: "{{ spacenet_git_repo }}"
+        dest: ~/spacenet
+        single_branch: True
+        version: "{{ spacenet_git_version }}"
+        force: True
+
+
+    - name: "Compile Spacenet code"
       make:
         chdir: ~/lotus
         target: spacenet
