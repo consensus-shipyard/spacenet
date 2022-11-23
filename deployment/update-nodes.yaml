@@ -1,0 +1,84 @@
+# Updates a given set of validators by fetching the configured code, recompiling it, and restarting the validators.
+# After the update, waits until the nodes sync with the state of a bootstrap node and only then returns.
+#
+# For safety, does NOT default to restarting all validators
+# and the set of hosts to restart must be explicitly given using --extra-vars "nodes=..."
+#
+# Note that this playbook always affects all hosts, regardless of the value of the nodes variable.
+# This is due to the necessity of reconnecting all daemons to the restarted one.
+
+---
+- name: Make sure nodes are specified explicitly
+  hosts: "{{ nodes }}"
+  gather_facts: False
+  tasks:
+
+- import_playbook: setup.yaml
+
+- name: Restart Lotus daemons
+  hosts: "{{ nodes }}"
+  serial: 1
+  gather_facts: False
+  vars:
+    bootstrap_identity: "{{ lookup('file', 'bootstrap-identity') }}"
+  tasks:
+
+    - name: Execute kill script
+      ansible.builtin.script:
+        cmd: scripts/kill.sh
+      ignore_errors: True
+
+
+    - name: Start Lotus daemon
+      ansible.builtin.script:
+        cmd: scripts/start-daemon.sh '{{ bootstrap_identity }}'
+
+
+- import_playbook: connect-daemons.yaml
+
+
+- name: Get the current block height from a bootstrap node
+  hosts: bootstrap
+  gather_facts: False
+  tasks:
+    - name: Get the current block height from the bootstrap node
+      run_once: True
+      shell: 'lotus/lotus chain get-block $(lotus/lotus chain head) | jq ".Height"'
+      register: bootstrap_height
+
+
+- name: Start only the specified validators
+  hosts: "{{ nodes }}"
+  gather_facts: False
+  tasks:
+
+    - name: Show the block height at the bootstrap node
+      ansible.builtin.debug:
+        msg: "{{ hostvars['3.66.145.60'].bootstrap_height.stdout }}"
+
+
+    # WARNING: Adjust this if checkpoint period changes.
+    # TODO: Get rid of this altogether when the bug that requires us to wait here is fixed.
+    - name: Wait until some new checkpoints are created
+      ansible.builtin.wait_for:
+        timeout: 20
+      delegate_to: localhost
+
+
+    - name: Start validators
+      ansible.builtin.script:
+        cmd: scripts/start-validator.sh
+
+
+    - name: Wait until the validator catches up
+      ansible.builtin.shell: 'lotus/lotus chain get-block $(lotus/lotus chain head) | jq ".Height"'
+      register: validator_height
+      until: validator_height.stdout | int > hostvars['3.66.145.60'].bootstrap_height.stdout | int
+      delay: 10
+      retries: 6
+
+
+    - name: Show the block height at the restarted validator node
+      ansible.builtin.debug:
+        msg: "{{ validator_height.stdout }}"
+...

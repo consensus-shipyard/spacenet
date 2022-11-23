@@ -1,11 +1,9 @@
 # Connects all Lotus daemons to each other. This is required for the nodes to be able to sync their state.
 # It assumes the daemons and the bootstrap are up and running (but not necessarily the validators)
-#
-# Applies to all hosts (including bootstrap) by default, unless other nodes are specified using --extra-vars "nodes=..."
 
 ---
 - name: Connect lotus daemons to each other
-  hosts: "{{nodes | default('all')}}"
+  hosts: all
   gather_facts: False
   become: False
   tasks:

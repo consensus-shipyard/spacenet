@@ -81,6 +81,21 @@ Thus, to deploy a fresh instance of Spacenet, simply run
 ansible-playbook -i hosts deploy-new.yaml
 ```
 
+## Rolling updates
+
+When the Lotus code, the validator code, or the Mir code are updated,
+the update can be rolled out to the running deployment, as long as the protocol remains the same.
+For this, we provide the `rolling-update.sh` script.
+This script performs a rolling update of selected nodes from an Ansible inventory and is invoked as follows.
+
+```shell
+./rolling-update hosts 198.51.100.1 [198.51.100.2 [...]]
+```
+
+The first argument must be an Ansible inventory file that contains all the node arguments that follow.
+This script updates (fetches the code, recompiles it, and restarts the node, using the update-nodes.yaml)
+the nodes one by one, always waiting for a node to catch up with the others
+and only then proceeding to updating the next one.
 
 ## Provided deployment playbooks
 
@@ -96,7 +111,7 @@ Applies to all hosts by default, unless other nodes are specified using --extra-
 Connects all Lotus daemons to each other. This is required for the nodes to be able to sync their state.
 It assumes the daemons and the bootstrap are up and running (but not necessarily the validators)
 
-Applies to all hosts (including bootstrap) by default, unless other nodes are specified using --extra-vars "nodes=..."
+Applies to all hosts (including bootstrap).
 
 ### `custom-script.yaml`
 
@@ -184,3 +199,14 @@ Starts the Mir validators.
 Assumes that the Lotus daemons are up and running (see start-daemons.yaml).
 
 Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+### `update-nodes.yaml`
+
+Updates a given set of validators by fetching the configured code, recompiling it, and restarting the validators.
+After the update, waits until the nodes sync with the state of a bootstrap node and only then returns.
+
+For safety, does NOT default to restarting all validators
+and the set of hosts to restart must be explicitly given using --extra-vars "nodes=..."
+
+Note that this playbook always affects all hosts, regardless of the value of the nodes variable.
+This is due to the necessity of reconnecting all daemons to the restarted one.

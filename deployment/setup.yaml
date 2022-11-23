@@ -60,6 +60,7 @@
       ansible.builtin.git:
         repo: "{{ lotus_git_repo }}"
         dest: ~/lotus
+        force: True
 
 
     - name: "Check out the selected code version: {{ lotus_git_version }}"
@@ -80,6 +81,7 @@
       ansible.builtin.git:
         repo: "{{ spacenet_git_repo }}"
         dest: ~/spacenet
+        force: True
 
 
     - name: "Check out the selected code version: {{ spacenet_git_version }}"
