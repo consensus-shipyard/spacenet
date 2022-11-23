@@ -5,13 +5,17 @@
 
 ---
 - import_playbook: clean.yaml
+
 - name: Delete the whole lotus state
   hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   tasks:
-    - name: Remove the whole repository with Lotus code
+    - name: Remove the cloned code repositories
       file:
+        path: "{{ item }}"
         state: absent
-        path: ~/lotus
+      with_items:
+        - ~/lotus
+        - ~/spacenet
 ...
