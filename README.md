@@ -5,7 +5,7 @@
 >
 > Made with ❤ by [ConsensusLab](https://consensuslab.world/)
 
-- Spacenet Faucet: https://consensus-shipyard.github.io/spacenet-faucet/
+- Spacenet Faucet: https://consensus-shipyard.github.io/spacenet
 - [Spacenet Genesis](./assets/genesis/spacenet.car)
 - Spacenet Bootstraps:
   - `xxxx`
