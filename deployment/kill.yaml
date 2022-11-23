@@ -11,7 +11,7 @@
   become: False
   tasks:
 
-    - name: "Execute cleanup script"
+    - name: "Execute kill script"
       ansible.builtin.script:
         cmd: scripts/kill.sh
       ignore_errors: True
