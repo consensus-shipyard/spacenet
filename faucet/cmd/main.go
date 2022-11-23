@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"expvar"
 	"fmt"
 	"net/http"
@@ -19,11 +20,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/filecoin-project/faucet/internal/faucet"
+	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/filecoin-project/lotus/api/v0api"
-
-	app "github.com/filecoin-project/faucet/internal/http"
 )
 
 var build = "develop"
@@ -50,10 +50,17 @@ func run(log *logging.ZapEventLogger) error {
 		conf.Version
 		Web struct {
 			ReadTimeout     time.Duration `conf:"default:5s"`
-			WriteTimeout    time.Duration `conf:"default:10s"`
+			WriteTimeout    time.Duration `conf:"default:60s"`
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
-			HTTPHost        string        `conf:"default:0.0.0.0:8000"`
+			Host            string        `conf:"default:0.0.0.0:8000"`
+			BackendHost     string        `conf:"required"`
+			AllowedOrigins  []string      `conf:"required"`
+		}
+		TLS struct {
+			Disable  bool   `conf:"default:true"`
+			CertFile string `conf:"default:nocert.pem"`
+			KeyFile  string `conf:"default:nokey.pem"`
 		}
 		Filecoin struct {
 			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
@@ -63,7 +70,7 @@ func run(log *logging.ZapEventLogger) error {
 			WithdrawalAmount       uint64 `conf:"default:10"`
 		}
 		Lotus struct {
-			APIHost   string `conf:"default:127.0.0.1:1234"`
+			APIHost   string `conf:"default:127.0.0.1:1230"`
 			AuthToken string
 		}
 		DB struct {
@@ -84,7 +91,7 @@ func run(log *logging.ZapEventLogger) error {
 			fmt.Println(help)
 			return nil
 		}
-		return fmt.Errorf("parsing config: %w", err)
+		return err
 	}
 
 	// =========================================================================
@@ -113,11 +120,11 @@ func run(log *logging.ZapEventLogger) error {
 		ReadOnly:    cfg.DB.Readonly,
 	})
 	if err != nil {
-		return fmt.Errorf("couldn´t initialize leveldb database: %w", err)
+		return fmt.Errorf("couldn't initialize leveldb database: %w", err)
 	}
 
 	defer func() {
-		log.Infow("shutdown", "status", "stopping database support")
+		log.Infow("shutdown", "status", "stopping leveldb")
 		db.Close()
 	}()
 
@@ -141,6 +148,11 @@ func run(log *logging.ZapEventLogger) error {
 	// =========================================================================
 	// Start Lotus client
 
+	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
+	if err != nil {
+		return fmt.Errorf("failed to parse Faucet address: %w", err)
+	}
+
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
 	lotusNode, lotusCloser, err := client.NewFullNodeRPCV0(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v0", header)
@@ -151,12 +163,8 @@ func run(log *logging.ZapEventLogger) error {
 		log.Infow("shutdown", "status", "stopping Lotus client support")
 		lotusCloser()
 	}()
-	log.Infow("Successfully connected to Lotus node")
 
-	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
-	if err != nil {
-		return fmt.Errorf("failed to parse Faucet address: %w", err)
-	}
+	log.Infow("Successfully connected to Lotus node")
 
 	// sanity-check to see if the node owns the key.
 	if err := verifyWallet(context.Background(), lotusNode, faucetAddr); err != nil {
@@ -171,10 +179,25 @@ func run(log *logging.ZapEventLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	var tlsConfig *tls.Config
+	if !cfg.TLS.Disable {
+		cert, err := tls.LoadX509KeyPair(cfg.TLS.CertFile, cfg.TLS.KeyFile)
+		if err != nil {
+			return fmt.Errorf("failed to load TLS key pair: %w", err)
+		}
+		tlsConfig = &tls.Config{
+			MinVersion:   tls.VersionTLS12,
+			Certificates: []tls.Certificate{cert},
+		}
+	}
+
 	api := http.Server{
-		Addr: cfg.Web.HTTPHost,
+		TLSConfig: tlsConfig,
+		Addr:      cfg.Web.Host,
 		Handler: app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
 			FaucetAddress:          faucetAddr,
+			AllowedOrigins:         cfg.Web.AllowedOrigins,
+			BackendAddress:         cfg.Web.BackendHost,
 			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
 			AddressWithdrawalLimit: cfg.Filecoin.AddressWithdrawalLimit,
 			WithdrawalAmount:       cfg.Filecoin.WithdrawalAmount,
@@ -189,7 +212,12 @@ func run(log *logging.ZapEventLogger) error {
 
 	go func() {
 		log.Infow("startup", "status", "api router started", "host", api.Addr)
-		serverErrors <- api.ListenAndServe()
+		switch cfg.TLS.Disable {
+		case true:
+			serverErrors <- api.ListenAndServe()
+		case false:
+			serverErrors <- api.ListenAndServeTLS(cfg.TLS.CertFile, cfg.TLS.KeyFile)
+		}
 	}()
 
 	// =========================================================================

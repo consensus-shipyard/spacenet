@@ -1,6 +1,7 @@
 package http
 
 import (
+	"html/template"
 	"net/http"
 	"path"
 
@@ -13,14 +14,16 @@ import (
 )
 
 type WebService struct {
-	log    *logging.ZapEventLogger
-	faucet *faucet.Service
+	log            *logging.ZapEventLogger
+	faucet         *faucet.Service
+	backendAddress string
 }
 
-func NewWebService(log *logging.ZapEventLogger, faucet *faucet.Service) *WebService {
+func NewWebService(log *logging.ZapEventLogger, faucet *faucet.Service, backendAddress string) *WebService {
 	return &WebService{
-		log:    log,
-		faucet: faucet,
+		log:            log,
+		faucet:         faucet,
+		backendAddress: backendAddress,
 	}
 }
 
@@ -47,11 +50,23 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
 }
 
 func (h *WebService) handleHome(w http.ResponseWriter, r *http.Request) {
 	p := path.Dir("./static/index.html")
 	w.Header().Set("Content-type", "text/html")
 	http.ServeFile(w, r, p)
+}
+
+func (h *WebService) handleScript(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("./static/js/scripts.js")
+	if err != nil {
+		web.RespondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	if err = tmpl.Execute(w, h.backendAddress); err != nil {
+		web.RespondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("Content-type", "text/javascript")
 }
