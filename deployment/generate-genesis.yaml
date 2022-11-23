@@ -5,32 +5,28 @@
 
 ---
 - name: Generate new Lotus genesis block
-  hosts: bootstrap[0]
+  hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   tasks:
 
-    - name: Copy genesis template to the node
+    - name: Copy genesis template to one node
+      run_once: True
       ansible.builtin.copy:
         src: spacenet_template.json
         dest: lotus/spacenet_template.json
 
     - name: Run genesis generation script
+      run_once: True
       ansible.builtin.script:
         cmd: scripts/generate-genesis.sh spacenet-genesis.car spacenet_template.json
 
     - name: Fetch genesis file
+      run_once: True
       ansible.builtin.fetch:
         flat: True
         src: lotus/spacenet-genesis.car
         dest: spacenet-genesis.car
-
-
-- name: Distribute genesis block to all Lotus nodes
-  hosts: "{{nodes | default('all')}}"
-  gather_facts: False
-  become: False
-  tasks:
 
     - name: Copy genesis file to all nodes
       ansible.builtin.copy:
