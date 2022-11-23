@@ -63,7 +63,7 @@ func run(log *logging.ZapEventLogger) error {
 			KeyFile  string
 		}
 		Filecoin struct {
-			Address string `conf:"default:f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq"`
+			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
 			// Amount of tokens that below is in FIL.
 			TotalWithdrawalLimit   uint64 `conf:"default:10000"`
 			AddressWithdrawalLimit uint64 `conf:"default:20"`

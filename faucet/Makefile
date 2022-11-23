@@ -28,4 +28,4 @@ cert:
 .PHONY: demo
 demo:
 	rm -rf ./_db_data
-	go run ./cmd/main.go --web-allowed-origins "https://localhost" --tls-cert-file "./_cert/cert.pem" --tls-key-file "./_cert/key.pem"
+	go run ./cmd/main.go --filecoin-address "f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq" --web-allowed-origins "https://localhost" --tls-cert-file "./_cert/cert.pem" --tls-key-file "./_cert/key.pem"
