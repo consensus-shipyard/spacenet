@@ -93,6 +93,13 @@
         force: True
 
 
+    - name: "Upload log rotation utility"
+      ansible.builtin.copy:
+        src: rotate-logs.sh
+        dest: lotus/rotate-logs.sh
+        mode: u+x
+
+
     - name: "Compile Spacenet code"
       make:
         chdir: ~/lotus

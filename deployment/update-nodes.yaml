@@ -31,7 +31,7 @@
 
     - name: Start Lotus daemon
       ansible.builtin.script:
-        cmd: scripts/start-daemon.sh '{{ bootstrap_identity }}'
+        cmd: scripts/start-daemon.sh '{{ bootstrap_identity }}' '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
 - import_playbook: connect-daemons.yaml
@@ -67,7 +67,7 @@
 
     - name: Start validators
       ansible.builtin.script:
-        cmd: scripts/start-validator.sh
+        cmd: scripts/start-validator.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
     - name: Wait until the validator catches up
