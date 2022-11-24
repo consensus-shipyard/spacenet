@@ -36,5 +36,5 @@
 
     - name: Start validators
       ansible.builtin.script:
-        cmd: scripts/start-validator.sh
+        cmd: scripts/start-validator.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 ...

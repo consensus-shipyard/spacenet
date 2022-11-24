@@ -18,4 +18,5 @@
       with_items:
         - ~/lotus
         - ~/spacenet
+        - ~/spacenet-logs
 ...
