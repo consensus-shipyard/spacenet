@@ -5,11 +5,10 @@
 >
 > Made with ❤ by [ConsensusLab](https://consensuslab.world/)
 
-- [Spacenet Faucet](https://consensus-shipyard.github.io/spacenet)
+- [Spacenet Faucet](https://spacenet.consensus.ninja)
 - [Spacenet Genesis](./assets/genesis/spacenet.car)
-- Spacenet Bootstraps:
-  - `xxxx`
-  - `xxxx`
+- Spacenet Bootstraps (full list [here](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)):
+  - Use `/ip4/3.66.145.60/tcp/1347/p2p/12D3KooWBgvwdJfJzi33n3RtesHdXvW16pGqaVgzD2WCijxvwEp1` to connect your full-node if the ones defined in compilation fail.
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the Trantor BFT consensus over Mir. 
@@ -55,8 +54,8 @@ You can run a full-node and connect it to Spacenet by:
 - Cloning the modified lotus implementation for Spacenet:
 ```
 git clone https://github.com/consensus-shipyard/lotus
-// TODO: Remove this step once we merge our version to master.
-git checkout adlrocha/mir-sync
+// The latest stable branch for the network is `spacenet`
+git checkout spacenet
 ```
 - Installing lotus and running all dependencies as described in the `README` of the [repo](https://github.com/consensus-shipyard/lotus)
 - Once you have all `lotus` installed you can run the following command to compile `lotus` with Spacenet support.
@@ -65,14 +64,13 @@ make spacenet
 ```
 - With that, you are ready to run your spacenet daemon and connect to the network by connecting to any its bootstrap nodes.
 ```
-./lotus daemon --genesis=spacenet.car
+./lotus daemon --bootsraps=true
 ```
-
-> TODO: Point to spacenet bootstraps.
+Spacenet supports every lotus command supported in mainnet, so you'll be able to configure your Spacenet full-node at will (by exposing a different API port, running Lotus lite, etc.). More info available in [Lotus' docs](https://lotus.filecoin.io/lotus/get-started/what-is-lotus/).
 
 ## Getting started for validators
 
-> Support for external validators coming soon!
+> Support for external validators coming soon! Track the work in [the following issue](https://github.com/consensus-shipyard/lotus/issues/21)
 
 Spacenet is currently run by a committee of 4 validators owned by CL. We don't accept externally owned validators during this initial testing phase, until the network deployment is stabilized, but support for reconfiguration and external validators will be added soon.
 
