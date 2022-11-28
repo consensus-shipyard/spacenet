@@ -7,8 +7,7 @@
 
 - [Spacenet Faucet](https://spacenet.consensus.ninja)
 - [Spacenet Genesis](./assets/genesis/spacenet.car)
-- Spacenet Bootstraps (full list [here](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)):
-  - Use `/ip4/3.66.145.60/tcp/1347/p2p/12D3KooWBgvwdJfJzi33n3RtesHdXvW16pGqaVgzD2WCijxvwEp1` to connect your full-node if the ones defined in compilation fail.
+- [Spacenet Bootstraps](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the Trantor BFT consensus over Mir. 
