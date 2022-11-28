@@ -53,6 +53,7 @@ You can run a full-node and connect it to Spacenet by:
 - Cloning the modified lotus implementation for Spacenet:
 ```
 git clone https://github.com/consensus-shipyard/lotus
+
 // The latest stable branch for the network is `spacenet`
 git checkout spacenet
 ```
