@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 	"path"
@@ -31,6 +32,11 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 	var req data.FundRequest
 	if err := web.Decode(r, &req); err != nil {
 		web.RespondError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if req.Address == "" {
+		web.RespondError(w, http.StatusBadRequest, errors.New("empty address"))
 		return
 	}
 
