@@ -9,7 +9,7 @@ lotus_git_repo: https://github.com/consensus-shipyard/lotus.git
 
 # Version of the code to check out from the Lotus repository at setup.
 # This can be a branch name, a commit hash, etc...
-lotus_git_version: "adlrocha/mir-sync" # Meaningless example value. Set to desired code version to check out from Git.
+lotus_git_version: "spacenet" # Meaningless example value. Set to desired code version to check out from Git.
 
 # Git repository to obtain the Spacenet code from.
 spacenet_git_repo: https://github.com/consensus-shipyard/spacenet.git
