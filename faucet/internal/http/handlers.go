@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	"path"
-	"time"
 
 	logging "github.com/ipfs/go-log/v2"
 
@@ -41,9 +40,7 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Infof(">>> %s %s -> {%s}\n",
-		r.RemoteAddr, time.Now(), req.Address,
-	)
+	h.log.Infof(">>> %s -> {%s}\n", r.RemoteAddr, req.Address)
 
 	targetAddr, err := address.NewFromString(req.Address)
 	if err != nil {
