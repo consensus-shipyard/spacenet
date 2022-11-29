@@ -81,9 +81,26 @@ func Test_Faucet(t *testing.T) {
 		faucetCfg: &cfg,
 	}
 
+	t.Run("fundEmptyAddress", tests.emptyAddress)
 	t.Run("fundAddress201", tests.fundAddress201)
 	t.Run("fundAddressWithMoreThanAllowed", tests.fundAddressWithMoreThanAllowed)
 	t.Run("fundAddressWithMoreThanTotal", tests.fundAddressWithMoreThanTotal)
+}
+
+func (ft *FaucetTests) emptyAddress(t *testing.T) {
+	req := data.FundRequest{Address: ""}
+
+	body, err := json.Marshal(&req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := httptest.NewRequest(http.MethodPost, "/fund", bytes.NewBuffer(body))
+	w := httptest.NewRecorder()
+
+	ft.handler.ServeHTTP(w, r)
+
+	require.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func (ft *FaucetTests) fundAddress201(t *testing.T) {
