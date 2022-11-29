@@ -40,7 +40,7 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.log.Infof("Input request: %v", req)
+	h.log.Infof(">>> %s -> {%s}\n", r.RemoteAddr, req.Address)
 
 	targetAddr, err := address.NewFromString(req.Address)
 	if err != nil {
