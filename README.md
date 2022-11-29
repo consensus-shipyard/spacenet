@@ -13,7 +13,7 @@
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. 
 _And what does this mean?_ Well, by implementing a high-performant consensus we have increased the throughput of the network significantly while reducing the 30-second block time consensus to around 1 second. As you may already be aware, Filecoin recently launched its [Filecoin Virtual Machine](https://fvm.filecoin.io/) and it will soon release support for user-defined actors. This will onboard a gamut of new applications to the Filecoin network, significantly increasing its load. Many use cases need higher throughput and tighter finality times than Filecoin can provide, and this is where Spacenet comes in.
 
-Spacenet aims to provide developers with a testbed to deploy their FVM use cases and innovate with new Web3 applications. Many of you may be wondering, _but why would I want to develop my application over a high-throughput Filecoin network if my goal is to deploy it on mainnet?_ Well, Spacenet is just the first step towards the deployment of the [InterPlanetary Consensus (IPC)](https://github.com/filecoin-project/FIPs/discussions/419), and our ambitious plan of scaling Filecoin, both in terms of performance and new capabilities. In this very first release, Spacenet is just Filecoin with a faster consensus algorithm, but it will be much more in the future: your portal to what's to come to the Filecoin ecosystem. 
+Spacenet aims to provide developers with a testbed to deploy their FVM compatiable use cases and innovate with new Web3 applications. Many of you may be wondering, _but why would I want to develop my application over a high-throughput Filecoin network if my goal is to deploy it on mainnet?_ Well, Spacenet is just the first step towards the deployment of the [InterPlanetary Consensus (IPC)](https://github.com/filecoin-project/FIPs/discussions/419), and our ambitious plan of scaling Filecoin, both in terms of performance and new capabilities. In this very first release, Spacenet is just Filecoin with a faster consensus algorithm, but it will be much more in the future: your portal to what's to come to the Filecoin ecosystem. 
 
 Spacenet is not only a developer sandbox to experiment with new protocol improvements, but also a way for us to test our consensus innovations with real applications and real users. Once IPC is released in Spacenet, developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent. With this version of Spacenet, we want to test Mir-Trantor, the first consensus algorithm supported by IPC subnets, before we unleash full IPC support. 
 
@@ -31,10 +31,10 @@ Announcements about new releases and status updates about the network are given 
 
 ## Getting started for users
 Spacenet is a Filecoin testnet, and as such it is supposed to do (almost) everything that the [Filecoin network supports](https://lotus.filecoin.io/tutorials/lotus/store-and-retrieve/set-up/):
-- Send Filecoin between addresses.
+- Send FIL between addresses.
 - Create multisig accounts.
 - Create [payment channels](https://lotus.filecoin.io/tutorials/lotus/payment-channels/).
-- Deploy [FVM contracts](https://docs.filecoin.io/fvm/basics/introduction/).
+- Deploy [FVM compatiable contracts](https://docs.filecoin.io/fvm/basics/introduction/).
 
 That being said, as the consensus layer is no longer storage-dependent, Spacenet has limited support for storage-related features. In particular, we have stripped out some of the functionalities of the lotus miner. While you deploy a lotus-miner over Spacenet to onboard storage to the network and perform deals, lotus-miners are not allowed to propose and validate blocks anymore (this is handled by Mir-Trantor validators).
 
