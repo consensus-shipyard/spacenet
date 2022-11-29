@@ -6,6 +6,7 @@ require (
 	github.com/ardanlabs/conf/v3 v3.1.2
 	github.com/filecoin-project/go-address v1.0.0
 	github.com/filecoin-project/lotus v1.17.2
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/ipfs/go-cid v0.2.0
 	github.com/ipfs/go-datastore v0.6.0
@@ -30,6 +31,7 @@ require (
 	github.com/daaku/go.zipexe v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
+	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/filecoin-project/go-amt-ipld/v2 v2.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v3 v3.1.0 // indirect
 	github.com/filecoin-project/go-amt-ipld/v4 v4.0.0 // indirect

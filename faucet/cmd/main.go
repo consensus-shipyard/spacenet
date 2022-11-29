@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
+	"github.com/gorilla/handlers"
 	datastore "github.com/ipfs/go-ds-leveldb"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/pkg/errors"
@@ -194,14 +195,14 @@ func run(log *logging.ZapEventLogger) error {
 	api := http.Server{
 		TLSConfig: tlsConfig,
 		Addr:      cfg.Web.Host,
-		Handler: app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
+		Handler: handlers.RecoveryHandler()(app.Handler(log, lotusNode, db, shutdown, &faucet.Config{
 			FaucetAddress:          faucetAddr,
 			AllowedOrigins:         cfg.Web.AllowedOrigins,
 			BackendAddress:         cfg.Web.BackendHost,
 			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
 			AddressWithdrawalLimit: cfg.Filecoin.AddressWithdrawalLimit,
 			WithdrawalAmount:       cfg.Filecoin.WithdrawalAmount,
-		}),
+		})),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
