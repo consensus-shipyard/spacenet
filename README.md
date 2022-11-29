@@ -41,7 +41,7 @@ That being said, as the consensus layer is no longer storage-dependent, Spacenet
 > ⚠️ Support for storage-specific features in Spacenet is limited.
 
 ### Getting Spacenet FIL
-In order to fund your account with Spacenet FIL we provide a faucet at [https://consensus-shipyard.github.io/spacenet/](https://consensus-shipyard.github.io/spacenet/). Getting FIL is as simple as inputting your address in the textbox and clicking the button.
+In order to fund your account with Spacenet FIL we provide a faucet at [https://spacenet.consensus.ninja](https://spacenet.consensus.ninja). Getting FIL is as simple as inputting your address in the textbox and clicking the button.
 - The per-request allowance given by the faucet is of 10 FIL.
 - There is a daily maximum of 20 FIL per address.
 - And we have also limited the maximum amount of funds that the faucet can withdraw daily.
