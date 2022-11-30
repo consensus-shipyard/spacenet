@@ -8,6 +8,7 @@
 - [Spacenet Faucet](https://spacenet.consensus.ninja)
 - [Spacenet Genesis](./assets/genesis/spacenet.car)
 - [Spacenet Bootstraps](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)
+- [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit)
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. 
@@ -27,7 +28,7 @@ Spacenet is an experimental network. We aim to have it constantly running, but s
 - Complete restarts of the network and loss of part or all stored state. In case of serious issues, it may be necessary to restart the network from a previous checkpoint, or completely restart from genesis.
 - Bugs and rough edges to be fixed and polished along the way.
 
-Announcements about new releases and status updates about the network are given in the #spacenet channel of the [Filecoin Slack](https://filecoin.io/slack) and through this repo. You can also ping us there or open an issue in this repo if you encounter a bug or some other issue with the network.
+Announcements about new releases and status updates about the network are given in the #spacenet channel of the [Filecoin Slack](https://filecoin.io/slack) and through this repo. You can also ping us there or open an issue in this repo if you encounter a bug or some other issue with the network. You can also direct your requests through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
 
 ## Getting started for users
 Spacenet is a Filecoin testnet, and as such it is supposed to do (almost) everything that the [Filecoin network supports](https://lotus.filecoin.io/tutorials/lotus/store-and-retrieve/set-up/):
@@ -45,7 +46,7 @@ In order to fund your account with Spacenet FIL we provide a faucet at [https://
 - The per-request allowance given by the faucet is of 10 FIL.
 - There is a daily maximum of 20 FIL per address.
 - And we have also limited the maximum amount of funds that the faucet can withdraw daily.
-If, for some reason, you require more Spacenet FIL for your application, feel free to drop us a message in the #spacenet Slack channel or via consensuslab@protocol.ai to increase your allowance.
+If, for some reason, you require more Spacenet FIL for your application, feel free to drop us a message in the #spacenet Slack channel, via consensuslab@protocol.ai to increase your allowance, or fill-in a request in [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
 ![](./assets/spacenet-faucet.png)
 
 ## Getting started for developers
@@ -70,7 +71,7 @@ Spacenet supports every lotus command supported in mainnet, so you'll be able to
 
 ## Getting started for validators
 
-> Support for external validators coming soon! Track the work in [the following issue](https://github.com/consensus-shipyard/lotus/issues/21)
+> Support for external validators coming soon! Track the work in [the following issue](https://github.com/consensus-shipyard/lotus/issues/21). If you are interested in becoming a validator let us know through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo).
 
 Spacenet is currently run by a committee of 4 validators owned by CL. We don't accept externally owned validators during this initial testing phase, until the network deployment is stabilized, but support for reconfiguration and external validators will be added soon.
 
