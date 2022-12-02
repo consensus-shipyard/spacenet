@@ -9,6 +9,7 @@
 - [Spacenet Genesis](./assets/genesis/spacenet.car)
 - [Spacenet Bootstraps](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)
 - [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit)
+- [Spacenet status page](https://spacenet.statuspage.io/)
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. 
@@ -40,6 +41,20 @@ Spacenet is a Filecoin testnet, and as such it is supposed to do (almost) everyt
 That being said, as the consensus layer is no longer storage-dependent, Spacenet has limited support for storage-related features. In particular, we have stripped out some of the functionalities of the lotus miner. While you deploy a lotus-miner over Spacenet to onboard storage to the network and perform deals, lotus-miners are not allowed to propose and validate blocks anymore (this is handled by Mir-Trantor validators).
 
 > ⚠️ Support for storage-specific features in Spacenet is limited.
+
+### Using lotus Lite for Spacenet
+The Spacenet blockchain is growing fast in size! If you are looking to tinker a bit with the network and get some Spacenet FIL, but you are not planning to extensively use the network to the extent of running your own full-node, we have provided a read endpoint so you can interace with Spacenet through a Lotus Lite node.
+
+To connect to Spacenet through a Lotus Lite you need to configure `FULLNODE_API_INFO` to point to the following peer with the following `API_KEY`:
+```
+FULLNODE_API_INFO=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIl19.w1-vwONiteLN0VlD9ccNujoPBXoFjkJJRyYva0SHah4:/ip4/52.29.194.50/tcp/1234 ./lotus daemon --lite
+```
+To test that the connection has been successful you can try to create a new wallet and send some funds from the faucet. More info about Lotus Lite can be found  [here](https://lotus.filecoin.io/lotus/install/lotus-lite/)
+
+> 📓 We are only providing read access through our current Lotus Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch through this [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit) or in FIL Slack's #spacenet.
+
+In future versions of Spacenet, we will provide periodic snapshot to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
+
 
 ### Getting Spacenet FIL
 In order to fund your account with Spacenet FIL we provide a faucet at [https://spacenet.consensus.ninja](https://spacenet.consensus.ninja). Getting FIL is as simple as inputting your address in the textbox and clicking the button.
