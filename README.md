@@ -80,7 +80,7 @@ make spacenet
 ```
 - With that, you are ready to run your spacenet daemon and connect to the network by connecting to any its bootstrap nodes.
 ```
-./lotus daemon --bootsraps=true
+./lotus daemon --bootstrap=true
 ```
 Spacenet supports every lotus command supported in mainnet, so you'll be able to configure your Spacenet full-node at will (by exposing a different API port, running Lotus lite, etc.). More info available in [Lotus' docs](https://lotus.filecoin.io/lotus/get-started/what-is-lotus/).
 
