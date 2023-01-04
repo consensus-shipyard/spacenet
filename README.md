@@ -6,7 +6,7 @@
 > Made with ❤ by [ConsensusLab](https://consensuslab.world/)
 
 - [Spacenet Faucet](https://spacenet.consensus.ninja)
-- [Spacenet Genesis](./assets/genesis/spacenet.car)
+- [Spacenet Genesis](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/genesis/spacenet.car)
 - [Spacenet Bootstraps](https://github.com/consensus-shipyard/lotus/blob/spacenet/build/bootstrap/spacenet.pi)
 - [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit)
 - [Spacenet status page](https://spacenet.statuspage.io/)
