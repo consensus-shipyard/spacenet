@@ -30,7 +30,12 @@ tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&
 mkdir -p ~/.lotus/keystore && chmod 0700 ~/.lotus/keystore
 ./lotus-shed keyinfo import spacenet-libp2p-bootstrap1.keyinfo
 echo '[Libp2p]
-ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]' > ~/.lotus/config.toml
+ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
+[Chainstore]
+  EnableSplitstore = true
+[Chainstore.Splitstore]
+  ColdStoreType = "discard"
+' > ~/.lotus/config.toml
 ./eudico wait-api
 ./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/' > ~/.lotus/lotus-addr
 
