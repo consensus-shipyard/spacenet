@@ -22,6 +22,15 @@ cd lotus || exit
 log_dir=~/spacenet-logs/daemon-$(date +%Y-%m-%d-%H-%M-%S_%Z)
 mkdir -p "$log_dir"
 
+# Enable chainstore without discard
+# (discard is only enabled in bootstraps for now)
+mkdir -p ~/.lotus
+echo '[Libp2p]
+ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
+[Chainstore]
+  EnableSplitstore = true
+' > ~/.lotus/config.toml
+
 # Kill a potentially running instance of Lotus
 tmux kill-session -t lotus
 tmux new-session -d -s lotus
