@@ -42,20 +42,6 @@ That being said, as the consensus layer is no longer storage-dependent, Spacenet
 
 > ⚠️ Support for storage-specific features in Spacenet is limited.
 
-### Using lotus Lite for Spacenet
-The Spacenet blockchain is growing fast in size! If you are looking to tinker a bit with the network and get some Spacenet FIL, but you are not planning to extensively use the network to the extent of running your own full-node, we have provided a read endpoint so you can interace with Spacenet through a Lotus Lite node.
-
-To connect to Spacenet through a Lotus Lite you need to configure `FULLNODE_API_INFO` to point to the following peer with the following `API_KEY`:
-```
-FULLNODE_API_INFO=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIl19.w1-vwONiteLN0VlD9ccNujoPBXoFjkJJRyYva0SHah4:/ip4/52.29.194.50/tcp/1234 ./lotus daemon --lite
-```
-To test that the connection has been successful you can try to create a new wallet and send some funds from the faucet. More info about Lotus Lite can be found  [here](https://lotus.filecoin.io/lotus/install/lotus-lite/)
-
-> 📓 We are only providing read access through our current Lotus Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch through this [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit) or in FIL Slack's #spacenet.
-
-In future versions of Spacenet, we will provide periodic snapshot to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
-
-
 ### Getting Spacenet FIL
 In order to fund your account with Spacenet FIL we provide a faucet at [https://spacenet.consensus.ninja](https://spacenet.consensus.ninja). Getting FIL is as simple as inputting your address in the textbox and clicking the button.
 - The per-request allowance given by the faucet is of 10 FIL.
@@ -65,34 +51,41 @@ If, for some reason, you require more Spacenet FIL for your application, feel fr
 ![](./assets/spacenet-faucet.png)
 
 ## Getting started for developers
-You can run a full-node and connect it to Spacenet by:
-- Cloning the modified lotus implementation for Spacenet:
+You can run a full-node and connect it to Spacenet by running eudico (a fork of lotus that is able to run several consensus algorithms):
+- Cloning the modified lotus implementation (eudico) for Spacenet:
 ```
 git clone https://github.com/consensus-shipyard/lotus
 
-// The latest stable branch for the network is `spacenet`
+// The default (and latest stable) branch for the network is `spacenet`
 git checkout spacenet
 ```
 - Installing lotus and running all dependencies as described in the `README` of the [repo](https://github.com/consensus-shipyard/lotus)
-- Once you have all `lotus` installed you can run the following command to compile `lotus` with Spacenet support.
+- Once you have all `lotus` dependencies installed you can run the following command to compile `eudico` with Spacenet support.
 ```
 make spacenet
 ```
 - With that, you are ready to run your spacenet daemon and connect to the network by connecting to any its bootstrap nodes.
 ```
-./lotus daemon --bootstrap=true
+./eudico mir daemon --bootstrap=true
 ```
-Spacenet supports every lotus command supported in mainnet, so you'll be able to configure your Spacenet full-node at will (by exposing a different API port, running Lotus lite, etc.). More info available in [Lotus' docs](https://lotus.filecoin.io/lotus/get-started/what-is-lotus/).
+Eudico in Spacenet supports every lotus command supported in mainnet, so you'll be able to configure your Spacenet full-node at will (by exposing a different API port, running Lotus lite, etc.). More info available in [Lotus' docs](https://lotus.filecoin.io/lotus/get-started/what-is-lotus/).
 
+### Using eudico Lite for Spacenet
+The Spacenet blockchain is growing fast in size! If you are looking to tinker a bit with the network and get some Spacenet FIL, but you are not planning to extensively use the network to the extent of running your own full-node, we have provided a read endpoint so you can interace with Spacenet through an Eudico Lite node.
+
+To connect to Spacenet through a Eudico Lite you need to configure `FULLNODE_API_INFO` to point to the following peer with the following `API_KEY`:
+```
+FULLNODE_API_INFO=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIl19.w1-vwONiteLN0VlD9ccNujoPBXoFjkJJRyYva0SHah4:/ip4/52.29.194.50/tcp/1234 ./eudico mir daemon --lite
+```
+To test that the connection has been successful you can try to create a new wallet and send some funds from the faucet. More info about Lotus/Eudico Lite can be found  [here](https://lotus.filecoin.io/lotus/install/lotus-lite/)
+
+> 📓 We are only providing read access through our current Eudico Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch through this [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit) or in FIL Slack's #spacenet.
+
+In future versions of Spacenet, we will provide periodic snapshot to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
 ## Getting started for validators
 
 > Support for external validators coming soon! Track the work in [the following issue](https://github.com/consensus-shipyard/lotus/issues/21). If you are interested in becoming a validator let us know through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo).
 
 Spacenet is currently run by a committee of 4 validators owned by CL. We don't accept externally owned validators during this initial testing phase, until the network deployment is stabilized, but support for reconfiguration and external validators will be added soon.
-
-## What's next?
-- Reconfiguration.
-- FEVM.
-- Native WASM actors.
 
 
