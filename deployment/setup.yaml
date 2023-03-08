@@ -5,7 +5,7 @@
 # Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
 
 ---
-- name: Initialize Mir benchmark VM
+- name: Initialize Spacenet VM
   hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
@@ -37,10 +37,13 @@
           - libhwloc-dev
           - wget
           - make
-          - golang
+          # - golang # The apt version of Go is outdated. We install it from source using th install-go.sh script.
           - tmux
         state: present
 
+    - name: "Install Go"
+      ansible.builtin.script:
+        cmd: scripts/install-go.sh
 
     - name: "Work around upgrade issues on some Linux machines"
       become: True
