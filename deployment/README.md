@@ -25,6 +25,8 @@ with `hosts` being the Ansible inventory and `<playbook.yaml>` one of the provid
 Additional playbooks can be specified in the same command and will be executed in the given sequence.
 A reference of the provided deployment playbooks is given at the end of this document.
 
+## Choosing deployment targets
+
 Running the command above applies the playbooks to their default targets,
 assuming all nodes in the inventory are part of Spacenet.
 To target specific nodes from the inventory, the `nodes` Ansible variable can be used
@@ -35,6 +37,11 @@ only set up the bootstrap node and only kill the validators `198.51.100.3` and `
 ansible-playbook -i hosts setup.yaml --extra-vars "nodes=bootstrap"
 ansible-playbook -i hosts kill.yaml --extra-vars "nodes='198.51.100.3 198.51.100.4'"
 ```
+
+## Ansible parallelism
+
+By default, ansible communicates with 5 remote nodes at a time.
+This is fine for 
 
 ## System requirements and configuration
 
@@ -70,10 +77,9 @@ and populate it with IP addresses of machines that should run Spacenet as descri
 The following steps must be executed to deploy Spacenet:
 1. Install necessary packages,
    clone the Spacenet client (Lotus) code and compile it on the remote machines (`setup.yaml`).
-2. Generate the genesis block for the network and distribute it to all nodes (`generate-genesis.yaml`)
-3. Start the bootstrap node (`start-bootstrap.yaml`)
-4. Start the Lotus daemons on validator nodes (`start-daemons.yaml`)
-5. Start the Mir validator processes on validator nodes (`start-validators.yaml`)
+2. Start the bootstrap node (`start-bootstrap.yaml`)
+3. Start the Lotus daemons on validator nodes (`start-daemons.yaml`)
+4. Start the Mir validator processes on validator nodes (`start-validators.yaml`)
 
 These steps are automated for convenience in the `deploy-new.yaml` playbook.
 Thus, to deploy a fresh instance of Spacenet, simply run
@@ -146,13 +152,6 @@ and sets up a new Spacenet deployment.
 The nodes variable must not be set, as this playbook must distinguish between different kinds of nodes
 (such as bootstrap and validators).
 
-### `generate-genesis.yaml`
-
-Generates a new genesis block (at the bootstrap node) and copies it to all validators.
-Assumes the hosts to have already been set up (using setup.yaml).
-
-An alternative set of nodes to copy the genesis block to can be specified using --extra-vars "nodes=..."
-
 ### `kill.yaml`
 
 Kills running Lotus daemon and Mir validator.
@@ -180,9 +179,7 @@ Applies to all hosts by default, unless other nodes are specified using --extra-
 
 ### `start-bootstrap.yaml`
 
-Starts the bootstrap node and downloads its identity to localhost.
-Assumes the host has been set up and the genesis block has been generated
-(using setup.yaml and generate-genesis.yaml respectively).
+Starts the bootstrap node and downloads its identity to localhost (using setup.yaml).
 
 Applies to the bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
 

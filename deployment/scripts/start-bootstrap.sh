@@ -24,8 +24,6 @@ tmux kill-session -t lotus
 tmux new-session -d -s lotus
 
 # Start the Lotus daemon and import the bootstrap key.
-# Keeping the version with a custom genesis commented, in case we need to come back to it.
-#tmux send-keys "./eudico mir daemon --genesis=spacenet-genesis.car --profile=bootstrapper --bootstrap=false 2>&1" C-m
 tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&1 | ./rotate-logs.sh ${bootstrap_log_dir} ${log_file_lines} ${max_archive_size}" C-m
 mkdir -p ~/.lotus/keystore && chmod 0700 ~/.lotus/keystore
 ./lotus-shed keyinfo import spacenet-libp2p-bootstrap1.keyinfo
