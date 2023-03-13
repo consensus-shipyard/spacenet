@@ -41,7 +41,13 @@ ansible-playbook -i hosts kill.yaml --extra-vars "nodes='198.51.100.3 198.51.100
 ## Ansible parallelism
 
 By default, ansible communicates with 5 remote nodes at a time.
-This is fine for 
+This is fine for, say 4 validators and 1 bootstrap, but as soon as more nodes are involved,
+it slows down the deployment significantly.
+To increase the number of parallel ansible connections, use the `--forks` command-line argument.
+
+```shell
+ansible-playbook -i hosts --forks 10 <playbook.yaml> ...
+```
 
 ## System requirements and configuration
 
