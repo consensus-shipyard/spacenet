@@ -24,7 +24,6 @@ tmux kill-session -t lotus
 tmux new-session -d -s lotus
 
 # Start the Lotus daemon and import the bootstrap key.
-tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&1 | ./rotate-logs.sh ${bootstrap_log_dir} ${log_file_lines} ${max_archive_size}" C-m
 mkdir -p ~/.lotus/keystore && chmod 0700 ~/.lotus/keystore
 ./lotus-shed keyinfo import spacenet-libp2p-bootstrap1.keyinfo
 echo '[Libp2p]
@@ -34,6 +33,7 @@ ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
 [Chainstore.Splitstore]
   ColdStoreType = "discard"
 ' > ~/.lotus/config.toml
+tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&1 | ./rotate-logs.sh ${bootstrap_log_dir} ${log_file_lines} ${max_archive_size}" C-m
 ./eudico wait-api
 ./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/' > ~/.lotus/lotus-addr
 
