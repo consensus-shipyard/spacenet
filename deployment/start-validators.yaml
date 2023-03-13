@@ -25,7 +25,7 @@
     - name: Combine validator identities into a single file
       run_once: True
       delegate_to: localhost
-      shell: 'rm -f mir.validators && cat tmp-validator-identities/*/.lotus/mir-validator-identity >> mir.validators && rm -r tmp-validator-identities'
+      shell: 'rm -f mir.validators && cat tmp-validator-identities/*/.lotus/mir-validator-identity | python3 scripts/generate-membership.py >> mir.validators && rm -r tmp-validator-identities'
 
 
     - name: Copy validator identity file to all nodes
