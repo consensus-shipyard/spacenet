@@ -52,6 +52,7 @@ ansible-playbook -i hosts --forks 10 <playbook.yaml> ...
 ## System requirements and configuration
 
 - Ansible installed on the local machine.
+- Python 3 (command `python3`) installed on the local machine.
 - Ubuntu 22.04 on all remote machines (might easily work with other systems, but was tested with this one).
 - Sudo access without password on remote machines.
 - SSH access to remote machines without password
