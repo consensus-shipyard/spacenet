@@ -35,7 +35,7 @@ ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
 ' > ~/.lotus/config.toml
 tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&1 | ./rotate-logs.sh ${bootstrap_log_dir} ${log_file_lines} ${max_archive_size}" C-m
 ./eudico wait-api
-./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/' > ~/.lotus/lotus-addr
+./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)|(/tcp/1347)' | grep -E '/ip4/.*/tcp/' > ~/.lotus/lotus-addr
 
 # Start the Faucet.
 ./eudico wallet import --as-default --format=json-lotus spacenet_faucet.key
