@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Obtain bootstrap key file.
+bootstrap_key="$1"
+[ -n "${bootstrap_key}" ] || exit
+shift
+
 # Obtain number of lines per log file.
 log_file_lines="$1"
 [ "${log_file_lines}" -gt 0 ] || exit
 shift
 
-# Make sure that the maximal log archive size (in bytes) has been properly specified.
+# Obtain maximal log archive size (in bytes)
 max_archive_size=$1
 [ "${max_archive_size}" -gt 0 ] || exit
 shift
@@ -25,7 +30,7 @@ tmux new-session -d -s lotus
 
 # Start the Lotus daemon and import the bootstrap key.
 mkdir -p ~/.lotus/keystore && chmod 0700 ~/.lotus/keystore
-./lotus-shed keyinfo import spacenet-libp2p-bootstrap1.keyinfo
+./lotus-shed keyinfo import "${bootstrap_key}"
 echo '[Libp2p]
 ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
 [Chainstore]

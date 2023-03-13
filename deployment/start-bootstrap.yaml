@@ -20,7 +20,7 @@
 
     - name: Start bootstrap node and faucet
       ansible.builtin.script:
-        cmd: scripts/start-bootstrap.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
+        cmd: scripts/start-bootstrap.sh spacenet-libp2p-bootstrap1.keyinfo '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
     - name: Get bootstrap node identity
