@@ -21,4 +21,4 @@ tmux kill-session -t mir-validator
 tmux new-session -d -s mir-validator
 
 # Start the Mir validator.
-tmux send-keys "LOTUS_PATH=/home/ubuntu/.lotus ./eudico mir validator run --nosync 2>&1 | ./rotate-logs.sh ${log_dir} ${log_file_lines} ${max_archive_size}" C-m
+tmux send-keys "LOTUS_PATH=/home/ubuntu/.lotus ./eudico mir validator run --nosync --max-block-delay=15s 2>&1 | ./rotate-logs.sh ${log_dir} ${log_file_lines} ${max_archive_size}" C-m
