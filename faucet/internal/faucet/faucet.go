@@ -11,6 +11,7 @@ import (
 
 	"github.com/filecoin-project/faucet/internal/db"
 	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
@@ -23,7 +24,7 @@ var (
 
 type PushWaiter interface {
 	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec) (*types.SignedMessage, error)
-	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64) (*api.MsgLookup, error)
+	StateWaitMsg(ctx context.Context, cid cid.Cid, confidence uint64, limit abi.ChainEpoch, allowReplaced bool) (*api.MsgLookup, error)
 }
 
 type Config struct {
@@ -118,7 +119,7 @@ func (s *Service) pushMessage(ctx context.Context, addr address.Address) error {
 		return err
 	}
 
-	if _, err = s.lotus.StateWaitMsg(ctx, msg.Cid(), build.MessageConfidence); err != nil {
+	if _, err = s.lotus.StateWaitMsg(ctx, msg.Cid(), build.MessageConfidence, abi.ChainEpoch(-1), true); err != nil {
 		return err
 	}
 

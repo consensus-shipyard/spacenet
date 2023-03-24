@@ -24,7 +24,7 @@ import (
 	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
-	"github.com/filecoin-project/lotus/api/v0api"
+	"github.com/filecoin-project/lotus/api/v1api"
 )
 
 var build = "develop"
@@ -159,7 +159,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
-	lotusNode, lotusCloser, err := client.NewFullNodeRPCV0(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v0", header)
+	lotusNode, lotusCloser, err := client.NewFullNodeRPCV1(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
 	if err != nil {
 		return fmt.Errorf("connecting to Lotus failed: %w", err)
 	}
@@ -255,7 +255,7 @@ func getToken() (string, error) {
 	return string(token), err
 }
 
-func verifyWallet(ctx context.Context, api v0api.FullNode, addr address.Address) error {
+func verifyWallet(ctx context.Context, api v1api.FullNode, addr address.Address) error {
 	l, err := api.WalletList(ctx)
 	if err != nil {
 		return err
