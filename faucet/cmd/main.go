@@ -126,7 +126,10 @@ func run(log *logging.ZapEventLogger) error {
 
 	defer func() {
 		log.Infow("shutdown", "status", "stopping leveldb")
-		db.Close()
+		err = db.Close()
+		if err != nil {
+			log.Errorf("closing DB error: %s", err)
+		}
 	}()
 
 	// =========================================================================
@@ -236,7 +239,7 @@ func run(log *logging.ZapEventLogger) error {
 		defer cancel()
 
 		if err := api.Shutdown(ctx); err != nil {
-			api.Close()
+			api.Close() // nolint
 			return fmt.Errorf("could not stop server gracefully: %w", err)
 		}
 	}
