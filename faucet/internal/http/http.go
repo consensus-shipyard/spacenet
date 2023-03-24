@@ -12,7 +12,7 @@ import (
 	"github.com/filecoin-project/faucet/internal/faucet"
 )
 
-func Handler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, cfg *faucet.Config) http.Handler {
+func Handler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, _ chan os.Signal, cfg *faucet.Config) http.Handler {
 	faucetService := faucet.NewService(logger, lotus, db, cfg)
 
 	srv := NewWebService(logger, faucetService, cfg.BackendAddress)
