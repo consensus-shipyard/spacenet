@@ -16,7 +16,6 @@
 
 - import_playbook: deep-clean.yaml
 - import_playbook: setup.yaml
-- import_playbook: generate-genesis.yaml
 - import_playbook: start-bootstrap.yaml
 - import_playbook: start-daemons.yaml
 - import_playbook: start-validators.yaml

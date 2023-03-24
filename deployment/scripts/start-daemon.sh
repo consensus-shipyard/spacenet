@@ -26,7 +26,7 @@ mkdir -p "$log_dir"
 # (discard is only enabled in bootstraps for now)
 mkdir -p ~/.lotus
 echo '[Libp2p]
-ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
+ListenAddresses = ["/ip4/0.0.0.0/tcp/1357"]
 [Chainstore]
   EnableSplitstore = true
 ' > ~/.lotus/config.toml
@@ -36,9 +36,7 @@ tmux kill-session -t lotus
 tmux new-session -d -s lotus
 
 # Start the Lotus daemon and import the bootstrap key.
-# Keeping the version with a custom genesis commented, in case we need to come back to it.
-#tmux send-keys "./eudico mir daemon --genesis=spacenet-genesis.car --bootstrap=true --mir-validator 2>&1" C-m
 tmux send-keys "./eudico mir daemon --bootstrap=true --mir-validator 2>&1 | ./rotate-logs.sh ${log_dir} ${log_file_lines} ${max_archive_size}" C-m
 ./eudico wait-api
 ./eudico net connect "$bootstrap_addr"
-./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/' > ~/.lotus/lotus-addr
+./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/1357' > ~/.lotus/lotus-addr

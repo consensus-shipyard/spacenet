@@ -1,6 +1,4 @@
-# Starts the bootstrap node and downloads its identity to localhost.
-# Assumes the host has been set up and the genesis block has been generated
-# (using setup.yaml and generate-genesis.yaml respectively).
+# Starts the bootstrap node and downloads its identity to localhost (using setup.yaml).
 #
 # Applies to the bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
 
@@ -22,7 +20,7 @@
 
     - name: Start bootstrap node and faucet
       ansible.builtin.script:
-        cmd: scripts/start-bootstrap.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
+        cmd: scripts/start-bootstrap.sh spacenet-libp2p-bootstrap1.keyinfo '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
     - name: Get bootstrap node identity
