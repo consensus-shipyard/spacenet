@@ -64,7 +64,7 @@ func (h *WebService) handleHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, p)
 }
 
-func (h *WebService) handleScript(w http.ResponseWriter, r *http.Request) {
+func (h *WebService) handleScript(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("./static/js/scripts.js")
 	if err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)

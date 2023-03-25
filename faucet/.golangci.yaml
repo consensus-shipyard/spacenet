@@ -18,7 +18,6 @@ linters:
     - misspell
     - nakedret
     - prealloc
-    - revive
     - staticcheck
     - stylecheck
     - unconvert
