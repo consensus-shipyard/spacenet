@@ -98,6 +98,8 @@ func run(log *logging.ZapEventLogger) error {
 	// =========================================================================
 	// App Starting
 
+	ctx := context.Background()
+
 	log.Infow("starting service", "version", build)
 	defer log.Infow("shutdown complete")
 
@@ -159,7 +161,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
-	lotusNode, lotusCloser, err := client.NewFullNodeRPCV1(context.Background(), "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
+	lotusNode, lotusCloser, err := client.NewFullNodeRPCV1(ctx, "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
 	if err != nil {
 		return fmt.Errorf("connecting to Lotus failed: %w", err)
 	}
@@ -171,7 +173,7 @@ func run(log *logging.ZapEventLogger) error {
 	log.Infow("Successfully connected to Lotus node")
 
 	// sanity-check to see if the node owns the key.
-	if err := verifyWallet(context.Background(), lotusNode, faucetAddr); err != nil {
+	if err := verifyWallet(ctx, lotusNode, faucetAddr); err != nil {
 		return fmt.Errorf("faucet wallet sanity-check failed: %w", err)
 	}
 
@@ -235,7 +237,7 @@ func run(log *logging.ZapEventLogger) error {
 		log.Infow("shutdown", "status", "shutdown started", "signal", sig)
 		defer log.Infow("shutdown", "status", "shutdown complete", "signal", sig)
 
-		ctx, cancel := context.WithTimeout(context.Background(), cfg.Web.ShutdownTimeout)
+		ctx, cancel := context.WithTimeout(ctx, cfg.Web.ShutdownTimeout)
 		defer cancel()
 
 		if err := api.Shutdown(ctx); err != nil {
