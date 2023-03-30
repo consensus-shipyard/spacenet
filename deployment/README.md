@@ -214,3 +214,7 @@ and the set of hosts to restart must be explicitly given using --extra-vars "nod
 
 Note that this playbook always affects all hosts, regardless of the value of the nodes variable.
 This is due to the necessity of reconnecting all daemons to the restarted one.
+
+### `status.yaml`
+
+Gets the status of the Eudico daemons and the chain head.

@@ -1,0 +1,15 @@
+# Check the statuses of the Eudico nodes.
+
+---
+- name: Check node status
+  hosts: all
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Check the statuses of the nodes
+      shell: 'cd lotus && ./eudico status && echo "Chain head: `./eudico chain head`" | cat'
+      register: out
+    - debug:
+        msg: "{{ out.stdout | split('\n') | flatten }}"
+...
