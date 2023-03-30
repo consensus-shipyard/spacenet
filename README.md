@@ -11,13 +11,16 @@
 - [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit)
 - [Spacenet status page](https://spacenet.statuspage.io/)
 
+[![Tests][tests-badge]][tests-url]
+[![Linting][lint-badge]][lint-url]
+
 ## Why Spacenet?
-Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. 
+Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir.
 _And what does this mean?_ Well, by implementing a high-performant consensus we have increased the throughput of the network significantly while reducing the 30-second block time consensus to around 1 second. As you may already be aware, Filecoin recently launched its [Filecoin Virtual Machine](https://fvm.filecoin.io/) and it will soon release support for user-defined actors. This will onboard a gamut of new applications to the Filecoin network, significantly increasing its load. Many use cases need higher throughput and tighter finality times than Filecoin can provide, and this is where Spacenet comes in.
 
-Spacenet aims to provide developers with a testbed to deploy their FVM compatible use cases and innovate with new Web3 applications. Many of you may be wondering, _but why would I want to develop my application over a high-throughput Filecoin network if my goal is to deploy it on mainnet?_ Well, Spacenet is just the first step towards the deployment of the [InterPlanetary Consensus (IPC)](https://github.com/filecoin-project/FIPs/discussions/419), and our ambitious plan of scaling Filecoin, both in terms of performance and new capabilities. In this very first release, Spacenet is just Filecoin with a faster consensus algorithm, but it will be much more in the future: your portal to what's to come to the Filecoin ecosystem. 
+Spacenet aims to provide developers with a testbed to deploy their FVM compatible use cases and innovate with new Web3 applications. Many of you may be wondering, _but why would I want to develop my application over a high-throughput Filecoin network if my goal is to deploy it on mainnet?_ Well, Spacenet is just the first step towards the deployment of the [InterPlanetary Consensus (IPC)](https://github.com/filecoin-project/FIPs/discussions/419), and our ambitious plan of scaling Filecoin, both in terms of performance and new capabilities. In this very first release, Spacenet is just Filecoin with a faster consensus algorithm, but it will be much more in the future: your portal to what's to come to the Filecoin ecosystem.
 
-Spacenet is not only a developer sandbox to experiment with new protocol improvements, but also a way for us to test our consensus innovations with real applications and real users. Once IPC is released in Spacenet, developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent. With this version of Spacenet, we want to test Mir-Trantor, the first consensus algorithm supported by IPC subnets, before we unleash full IPC support. 
+Spacenet is not only a developer sandbox to experiment with new protocol improvements, but also a way for us to test our consensus innovations with real applications and real users. Once IPC is released in Spacenet, developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent. With this version of Spacenet, we want to test Mir-Trantor, the first consensus algorithm supported by IPC subnets, before we unleash full IPC support.
 
 > In the meantime, to learn more about IPC you can read [this paper](https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/) and/or [watch this talk](https://www.youtube.com/watch?v=bD1LDVc2lMQ&list=PLhuBigpl7lqu0bsMQ8K7aLfmUFrkMw52K&index=3):
 
@@ -47,8 +50,8 @@ In order to fund your account with Spacenet FIL we provide a faucet at [https://
 - The per-request allowance given by the faucet is of 10 FIL.
 - There is a daily maximum of 20 FIL per address.
 - And we have also limited the maximum amount of funds that the faucet can withdraw daily.
-If, for some reason, you require more Spacenet FIL for your application, feel free to drop us a message in the #spacenet Slack channel, via consensuslab@protocol.ai to increase your allowance, or fill-in a request in [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
-![](./assets/spacenet-faucet.png)
+  If, for some reason, you require more Spacenet FIL for your application, feel free to drop us a message in the #spacenet Slack channel, via consensuslab@protocol.ai to increase your allowance, or fill-in a request in [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
+  ![](./assets/spacenet-faucet.png)
 
 ## Getting started for developers
 You can run a full-node and connect it to Spacenet by running eudico (a fork of lotus that is able to run several consensus algorithms):
@@ -89,3 +92,8 @@ In future versions of Spacenet, we will provide periodic snapshot to help develo
 Spacenet is currently run by a committee of 4 validators owned by CL. We don't accept externally owned validators during this initial testing phase, until the network deployment is stabilized, but support for reconfiguration and external validators will be added soon.
 
 
+[lint-url]: https://github.com/consensus-shipyard/spacenet/actions/workflows/lint.yml
+[lint-badge]: https://github.com/consensus-shipyard/spacenet/actions/workflows/lint.yml/badge.svg?branch=main
+
+[tests-url]: https://github.com/consensus-shipyard/spacenet/actions/workflows/test.yml
+[tests-badge]: https://github.com/consensus-shipyard/spacenet/actions/workflows/test.yml/badge.svg?branch=main
