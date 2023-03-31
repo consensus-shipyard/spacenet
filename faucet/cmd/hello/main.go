@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"expvar"
 	"fmt"
 	"net/http"
@@ -14,23 +13,18 @@ import (
 
 	"github.com/ardanlabs/conf/v3"
 	"github.com/gorilla/handlers"
-	datastore "github.com/ipfs/go-ds-leveldb"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/pkg/errors"
-	ldbopts "github.com/syndtr/goleveldb/leveldb/opt"
 	"go.uber.org/zap"
 
-	"github.com/filecoin-project/faucet/internal/faucet"
 	app "github.com/filecoin-project/faucet/internal/http"
-	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/lotus/api/client"
-	"github.com/filecoin-project/lotus/api/v1api"
 )
 
 var build = "develop"
 
 func main() {
-	logger := logging.Logger("SPACENET-FAUCET")
+	logger := logging.Logger("SPACENET-HELLO")
 
 	lvl, err := logging.LevelFromString("info")
 	if err != nil {
@@ -54,38 +48,25 @@ func run(log *logging.ZapEventLogger) error {
 			WriteTimeout    time.Duration `conf:"default:60s"`
 			IdleTimeout     time.Duration `conf:"default:120s"`
 			ShutdownTimeout time.Duration `conf:"default:20s"`
-			Host            string        `conf:"default:0.0.0.0:8000"`
-			BackendHost     string        `conf:"required"`
-			AllowedOrigins  []string      `conf:"required"`
+			Host            string        `conf:"default:0.0.0.0:9000"`
 		}
 		TLS struct {
 			Disable  bool   `conf:"default:true"`
 			CertFile string `conf:"default:nocert.pem"`
 			KeyFile  string `conf:"default:nokey.pem"`
 		}
-		Filecoin struct {
-			Address string `conf:"default:t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy"`
-			// Amount of tokens that below is in FIL.
-			TotalWithdrawalLimit   uint64 `conf:"default:10000"`
-			AddressWithdrawalLimit uint64 `conf:"default:20"`
-			WithdrawalAmount       uint64 `conf:"default:10"`
-		}
 		Lotus struct {
 			APIHost   string `conf:"default:127.0.0.1:1230"`
 			AuthToken string
 		}
-		DB struct {
-			Path     string `conf:"default:./_db_data"`
-			Readonly bool   `conf:"default:false"`
-		}
 	}{
 		Version: conf.Version{
 			Build: build,
-			Desc:  "Spacenet Faucet Service",
+			Desc:  "Spacenet Hello Service",
 		},
 	}
 
-	const prefix = "FAUCET"
+	const prefix = "HELLO"
 	help, err := conf.Parse(prefix, &cfg)
 	if err != nil {
 		if errors.Is(err, conf.ErrHelpWanted) {
@@ -112,29 +93,6 @@ func run(log *logging.ZapEventLogger) error {
 	expvar.NewString("build").Set(build)
 
 	// =========================================================================
-	// Database Support
-
-	log.Infow("startup", "status", "initializing database support", "path", cfg.DB.Path)
-
-	db, err := datastore.NewDatastore(cfg.DB.Path, &datastore.Options{
-		Compression: ldbopts.NoCompression,
-		NoSync:      false,
-		Strict:      ldbopts.StrictAll,
-		ReadOnly:    cfg.DB.Readonly,
-	})
-	if err != nil {
-		return fmt.Errorf("couldn't initialize leveldb database: %w", err)
-	}
-
-	defer func() {
-		log.Infow("shutdown", "status", "stopping leveldb")
-		err = db.Close()
-		if err != nil {
-			log.Errorf("closing DB error: %s", err)
-		}
-	}()
-
-	// =========================================================================
 	// Initialize authentication support
 
 	log.Infow("startup", "status", "initializing authentication support")
@@ -154,11 +112,6 @@ func run(log *logging.ZapEventLogger) error {
 	// =========================================================================
 	// Start Lotus client
 
-	faucetAddr, err := address.NewFromString(cfg.Filecoin.Address)
-	if err != nil {
-		return fmt.Errorf("failed to parse Faucet address: %w", err)
-	}
-
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
 	lotusNode, lotusCloser, err := client.NewFullNodeRPCV1(ctx, "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
@@ -172,11 +125,6 @@ func run(log *logging.ZapEventLogger) error {
 
 	log.Infow("Successfully connected to Lotus node")
 
-	// sanity-check to see if the node owns the key.
-	if err := verifyWallet(ctx, lotusNode, faucetAddr); err != nil {
-		return fmt.Errorf("faucet wallet sanity-check failed: %w", err)
-	}
-
 	// =========================================================================
 	// Start API Service
 
@@ -185,29 +133,9 @@ func run(log *logging.ZapEventLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
-	var tlsConfig *tls.Config
-	if !cfg.TLS.Disable {
-		cert, err := tls.LoadX509KeyPair(cfg.TLS.CertFile, cfg.TLS.KeyFile)
-		if err != nil {
-			return fmt.Errorf("failed to load TLS key pair: %w", err)
-		}
-		tlsConfig = &tls.Config{
-			MinVersion:   tls.VersionTLS12,
-			Certificates: []tls.Certificate{cert},
-		}
-	}
-
 	api := http.Server{
-		TLSConfig: tlsConfig,
-		Addr:      cfg.Web.Host,
-		Handler: handlers.RecoveryHandler()(app.Handler(log, lotusNode, lotusNode, db, shutdown, &faucet.Config{
-			FaucetAddress:          faucetAddr,
-			AllowedOrigins:         cfg.Web.AllowedOrigins,
-			BackendAddress:         cfg.Web.BackendHost,
-			TotalWithdrawalLimit:   cfg.Filecoin.TotalWithdrawalLimit,
-			AddressWithdrawalLimit: cfg.Filecoin.AddressWithdrawalLimit,
-			WithdrawalAmount:       cfg.Filecoin.WithdrawalAmount,
-		})),
+		Addr:         cfg.Web.Host,
+		Handler:      handlers.RecoveryHandler()(app.HelloHandler(log, lotusNode)),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
@@ -255,18 +183,4 @@ func getToken() (string, error) {
 	}
 	token, err := os.ReadFile(path.Join(lotusPath, "/token"))
 	return string(token), err
-}
-
-func verifyWallet(ctx context.Context, api v1api.FullNode, addr address.Address) error {
-	l, err := api.WalletList(ctx)
-	if err != nil {
-		return err
-	}
-
-	for _, w := range l {
-		if w == addr {
-			return nil
-		}
-	}
-	return fmt.Errorf("faucet wallet not owned by peer targeted by faucet server")
 }
