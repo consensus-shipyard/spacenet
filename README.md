@@ -1,7 +1,7 @@
 ![](./assets/spacenet-header.png)
 
 # Spacenet
-> A new generation Filecoin testnet.
+> A new-generation Filecoin IPC testnet.
 >
 > Made with ❤ by [ConsensusLab](https://consensuslab.world/)
 
@@ -15,12 +15,9 @@
 [![Linting][lint-badge]][lint-url]
 
 ## Why Spacenet?
-Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir.
-_And what does this mean?_ Well, by implementing a high-performant consensus we have increased the throughput of the network significantly while reducing the 30-second block time consensus to around 1 second. As you may already be aware, Filecoin recently launched its [Filecoin Virtual Machine](https://fvm.filecoin.io/) and it will soon release support for user-defined actors. This will onboard a gamut of new applications to the Filecoin network, significantly increasing its load. Many use cases need higher throughput and tighter finality times than Filecoin can provide, and this is where Spacenet comes in.
+Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. And did we forget to mention Spacenet comes with [Interplanetary Consensus (IPC)](https://ipc.space/) support?
 
-Spacenet aims to provide developers with a testbed to deploy their FVM compatible use cases and innovate with new Web3 applications. Many of you may be wondering, _but why would I want to develop my application over a high-throughput Filecoin network if my goal is to deploy it on mainnet?_ Well, Spacenet is just the first step towards the deployment of the [InterPlanetary Consensus (IPC)](https://github.com/filecoin-project/FIPs/discussions/419), and our ambitious plan of scaling Filecoin, both in terms of performance and new capabilities. In this very first release, Spacenet is just Filecoin with a faster consensus algorithm, but it will be much more in the future: your portal to what's to come to the Filecoin ecosystem.
-
-Spacenet is not only a developer sandbox to experiment with new protocol improvements, but also a way for us to test our consensus innovations with real applications and real users. Once IPC is released in Spacenet, developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent. With this version of Spacenet, we want to test Mir-Trantor, the first consensus algorithm supported by IPC subnets, before we unleash full IPC support.
+Spacenet aims to provide developers with a testbed to deploy their FVM use cases and innovate with new Web3 applications that can benefit from operating in subnets. It is also a way for us to test our consensus innovations with real applications and real users. Developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent.
 
 > In the meantime, to learn more about IPC you can read [the design reference](https://github.com/consensus-shipyard/IPC-design-reference-spec/raw/main/main.pdf) and/or [watch this (slightly outdated) talk](https://www.youtube.com/watch?v=bD1LDVc2lMQ&list=PLhuBigpl7lqu0bsMQ8K7aLfmUFrkMw52K&index=3):
 
@@ -36,10 +33,11 @@ Announcements about new releases and status updates about the network are given 
 
 ## Getting started for users
 Spacenet is a Filecoin testnet, and as such it is supposed to do (almost) everything that the [Filecoin network supports](https://lotus.filecoin.io/tutorials/lotus/store-and-retrieve/set-up/):
-- Send FIL between addresses.
-- Create multisig accounts.
-- Create [payment channels](https://lotus.filecoin.io/tutorials/lotus/payment-channels/).
-- Deploy [FVM compatible contracts](https://docs.filecoin.io/fvm/basics/introduction/).
+- Send FIL between addresses
+- Create multisig accounts
+- Create [payment channels](https://lotus.filecoin.io/tutorials/lotus/payment-channels/)
+- Deploy [FVM compatible contracts](https://docs.filecoin.io/smart-contracts/fundamentals/the-filecoin-virtual-machine/)
+- Deploy [IPC subnets](https://github.com/consensus-shipyard/ipc-agent) 
 
 That being said, as the consensus layer is no longer storage-dependent, Spacenet has limited support for storage-related features. In particular, we have stripped out some of the functionalities of the lotus miner. While you deploy a lotus-miner over Spacenet to onboard storage to the network and perform deals, lotus-miners are not allowed to propose and validate blocks anymore (this is handled by Mir-Trantor validators).
 
@@ -85,6 +83,13 @@ To test that the connection has been successful you can try to create a new wall
 > 📓 We are only providing read access through our current Eudico Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch through this [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit) or in FIL Slack's #spacenet.
 
 In future versions of Spacenet, we will provide periodic snapshot to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
+
+## Getting started with  IPC
+
+Spacenet now features support for IPC subnets. You're able to create, join, and leave subnets, to operate as a subnet validator, and to issue transactions and deploy smart contracts in subnets.
+
+The instuctions in the [IPC Agent](https://github.com/consensus-shipyard/ipc-agent) repository will guide you through the deployment of an IPC subnet under Spacenet.
+
 ## Getting started for validators
 
 > Support for external validators coming soon! Track the work in [the following issue](https://github.com/consensus-shipyard/lotus/issues/21). If you are interested in becoming a validator let us know through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo).
