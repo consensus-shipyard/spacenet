@@ -32,7 +32,7 @@ Spacenet is an experimental network. We aim to have it constantly running, but s
 - Complete restarts of the network and loss of part or all stored state. In case of serious issues, it may be necessary to restart the network from a previous checkpoint, or completely restart from genesis.
 - Bugs and rough edges to be fixed and polished along the way.
 
-Announcements about new releases and status updates about the network are given in the #spacenet channel of the [Filecoin Slack](https://filecoin.io/slack) and through this repo. You can also ping us there or open an issue in this repo if you encounter a bug or some other issue with the network. You can also direct your requests through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
+Announcements about new releases and status updates about the network are given in the **#spacenet** channel of the [Filecoin Slack](https://filecoin.io/slack) and through this repo. You can also ping us there or open an issue in this repo if you encounter a bug or some other issue with the network. You can also direct your requests through [this form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit).
 
 ## Getting started for users
 Spacenet is a Filecoin testnet, and as such it is supposed to do (almost) everything that the [Filecoin network supports](https://lotus.filecoin.io/tutorials/lotus/store-and-retrieve/set-up/):
