@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/ipfs/go-cid"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p/core"
+	"github.com/libp2p/go-libp2p/core/peer"
+	ma "github.com/multiformats/go-multiaddr"
 
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/lotus/api"
@@ -43,7 +43,7 @@ func (l *FakeLotus) NetPeers(context.Context) ([]peer.AddrInfo, error) {
 	return []peer.AddrInfo{
 		{
 			ID:    "ID",
-			Addrs: []core.Multiaddr{},
+			Addrs: []ma.Multiaddr{},
 		},
 	}, nil
 }
