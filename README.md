@@ -22,7 +22,7 @@ Spacenet aims to provide developers with a testbed to deploy their FVM compatibl
 
 Spacenet is not only a developer sandbox to experiment with new protocol improvements, but also a way for us to test our consensus innovations with real applications and real users. Once IPC is released in Spacenet, developers will be able to deploy their own subnets from Spacenet while maintaining the ability to seamlessly interact with state and applications in the original network, from which they have otherwise become independent. With this version of Spacenet, we want to test Mir-Trantor, the first consensus algorithm supported by IPC subnets, before we unleash full IPC support.
 
-> In the meantime, to learn more about IPC you can read [this paper](https://research.protocol.ai/publications/hierarchical-consensus-a-horizontal-scaling-framework-for-blockchains/) and/or [watch this talk](https://www.youtube.com/watch?v=bD1LDVc2lMQ&list=PLhuBigpl7lqu0bsMQ8K7aLfmUFrkMw52K&index=3):
+> In the meantime, to learn more about IPC you can read [the design reference](https://github.com/consensus-shipyard/IPC-design-reference-spec/raw/main/main.pdf) and/or [watch this (slightly outdated) talk](https://www.youtube.com/watch?v=bD1LDVc2lMQ&list=PLhuBigpl7lqu0bsMQ8K7aLfmUFrkMw52K&index=3):
 
 [![Watch the video](https://img.youtube.com/vi/bD1LDVc2lMQ/hqdefault.jpg)](https://youtu.be/bD1LDVc2lMQ)
 
