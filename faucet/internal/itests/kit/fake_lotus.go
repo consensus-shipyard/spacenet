@@ -30,13 +30,17 @@ func (l *FakeLotus) StateWaitMsg(_ context.Context, _ cid.Cid, _ uint64, _ abi.C
 	return nil, nil
 }
 
-func (l *FakeLotus) NodeStatus(ctx context.Context, inclChainStatus bool) (api.NodeStatus, error) {
+func (l *FakeLotus) NodeStatus(_ context.Context, _ bool) (api.NodeStatus, error) {
 	return api.NodeStatus{
 		SyncStatus: api.NodeSyncStatus{
 			Epoch:  uint64(10),
 			Behind: uint64(0),
 		},
 	}, nil
+}
+
+func (l *FakeLotus) Version(_ context.Context) (api.APIVersion, error) {
+	return api.APIVersion{Version: "1.0"}, nil
 
 }
 func (l *FakeLotus) NetPeers(context.Context) ([]peer.AddrInfo, error) {

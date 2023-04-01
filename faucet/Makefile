@@ -35,6 +35,6 @@ demo-tls:
 	rm -rf ./_db_data
 	go run ./cmd/main.go --web-allowed-origins "https://localhost" --web-backend-host "https://localhost:443/fund" --filecoin-address "f1cp4q4lqsdhob23ysywffg2tvbmar5cshia4rweq" --tls-cert-file "./_cert/cert.pem" --tls-key-file "./_cert/key.pem"
 
-.PHONY: hello
-hello:
-	go run ./cmd/hello/main.go --web-host "127.0.0.1:9000"
+.PHONY: health
+health:
+	go run ./cmd/health/main.go --web-host "127.0.0.1:9000"

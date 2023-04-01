@@ -14,21 +14,21 @@ import (
 	"github.com/filecoin-project/go-address"
 )
 
-type WebService struct {
+type FaucetWebService struct {
 	log            *logging.ZapEventLogger
 	faucet         *faucet.Service
 	backendAddress string
 }
 
-func NewWebService(log *logging.ZapEventLogger, faucet *faucet.Service, backendAddress string) *WebService {
-	return &WebService{
+func NewWebService(log *logging.ZapEventLogger, faucet *faucet.Service, backendAddress string) *FaucetWebService {
+	return &FaucetWebService{
 		log:            log,
 		faucet:         faucet,
 		backendAddress: backendAddress,
 	}
 }
 
-func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
+func (h *FaucetWebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 	var req data.FundRequest
 	if err := web.Decode(r, &req); err != nil {
 		web.RespondError(w, http.StatusBadRequest, err)
@@ -58,13 +58,13 @@ func (h *WebService) handleFunds(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *WebService) handleHome(w http.ResponseWriter, r *http.Request) {
+func (h *FaucetWebService) handleHome(w http.ResponseWriter, r *http.Request) {
 	p := path.Dir("./static/index.html")
 	w.Header().Set("Content-type", "text/html")
 	http.ServeFile(w, r, p)
 }
 
-func (h *WebService) handleScript(w http.ResponseWriter, _ *http.Request) {
+func (h *FaucetWebService) handleScript(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("./static/js/scripts.js")
 	if err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)

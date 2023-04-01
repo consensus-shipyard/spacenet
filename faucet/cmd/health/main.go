@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
 	"syscall"
 	"time"
 
@@ -18,13 +17,14 @@ import (
 	"go.uber.org/zap"
 
 	app "github.com/filecoin-project/faucet/internal/http"
+	"github.com/filecoin-project/faucet/internal/platform/lotus"
 	"github.com/filecoin-project/lotus/api/client"
 )
 
 var build = "develop"
 
 func main() {
-	logger := logging.Logger("SPACENET-HELLO")
+	logger := logging.Logger("SPACENET-HEALTH")
 
 	lvl, err := logging.LevelFromString("info")
 	if err != nil {
@@ -62,11 +62,11 @@ func run(log *logging.ZapEventLogger) error {
 	}{
 		Version: conf.Version{
 			Build: build,
-			Desc:  "Spacenet Hello Service",
+			Desc:  "Spacenet Health Service",
 		},
 	}
 
-	const prefix = "HELLO"
+	const prefix = "HEALTH"
 	help, err := conf.Parse(prefix, &cfg)
 	if err != nil {
 		if errors.Is(err, conf.ErrHelpWanted) {
@@ -100,7 +100,7 @@ func run(log *logging.ZapEventLogger) error {
 	var authToken string
 
 	if cfg.Lotus.AuthToken == "" {
-		authToken, err = getToken()
+		authToken, err = lotus.GetToken()
 		if err != nil {
 			return fmt.Errorf("error getting authentication token: %w", err)
 		}
@@ -114,7 +114,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	log.Infow("startup", "status", "initializing Lotus support", "host", cfg.Lotus.APIHost)
 
-	lotusNode, lotusCloser, err := client.NewFullNodeRPCV1(ctx, "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
+	lotusClient, lotusCloser, err := client.NewFullNodeRPCV1(ctx, "ws://"+cfg.Lotus.APIHost+"/rpc/v1", header)
 	if err != nil {
 		return fmt.Errorf("connecting to Lotus failed: %w", err)
 	}
@@ -135,7 +135,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.Host,
-		Handler:      handlers.RecoveryHandler()(app.HelloHandler(log, lotusNode)),
+		Handler:      handlers.RecoveryHandler()(app.HealthHandler(log, lotusClient, build)),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
@@ -174,13 +174,4 @@ func run(log *logging.ZapEventLogger) error {
 		}
 	}
 	return nil
-}
-
-func getToken() (string, error) {
-	lotusPath := os.Getenv("LOTUS_PATH")
-	if lotusPath == "" {
-		return "", fmt.Errorf("LOTUS_PATH not set in environment")
-	}
-	token, err := os.ReadFile(path.Join(lotusPath, "/token"))
-	return string(token), err
 }

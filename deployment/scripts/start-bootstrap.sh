@@ -45,6 +45,6 @@ tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&
 # Start the Faucet.
 ./eudico wallet import --as-default --format=json-lotus spacenet_faucet.key
 cd ~/spacenet/faucet/ || exit
-go build -o spacenet-faucet ./cmd || exit
+go build -o spacenet-faucet ./cmd/faucet || exit
 tmux new-session -d -s faucet
 tmux send-keys "export LOTUS_PATH=~/.lotus && ./spacenet-faucet --web-host \"0.0.0.0:8000\" --web-allowed-origins \"*\" --web-backend-host \"https://spacenet.consensus.ninja/fund\" --filecoin-address=t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy --lotus-api-host=127.0.0.1:1234 2>&1 | ~/lotus/rotate-logs.sh ${faucet_log_dir} ${log_file_lines} ${max_archive_size}" C-m

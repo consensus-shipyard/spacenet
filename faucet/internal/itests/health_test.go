@@ -2,7 +2,6 @@ package itests
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,36 +14,36 @@ import (
 	"github.com/filecoin-project/faucet/internal/itests/kit"
 )
 
-type HelloTests struct {
+type HealthTests struct {
 	handler http.Handler
 }
 
-func Test_Hello(t *testing.T) {
-	log := logging.Logger("TEST-HELLO-SERVICE")
-
+func Test_Health(t *testing.T) {
+	log := logging.Logger("TEST-HEALTH")
 	lotus := kit.NewFakeLotus()
-
-	srv := handler.HelloHandler(log, lotus)
-
-	tests := HelloTests{
+	srv := handler.HealthHandler(log, lotus, "build")
+	tests := HealthTests{
 		handler: srv,
 	}
-
-	t.Run("hello", tests.hello)
+	t.Run("liveness", tests.liveness)
+	t.Run("readiness", tests.readiness)
 }
 
-func (ht *HelloTests) hello(t *testing.T) {
-	r := httptest.NewRequest(http.MethodGet, "/hello", nil)
+func (ht *HealthTests) liveness(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/liveness", nil)
 	w := httptest.NewRecorder()
-
 	ht.handler.ServeHTTP(w, r)
-
 	require.Equal(t, http.StatusOK, w.Code)
-	fmt.Println(w.Body)
-
-	var resp data.HelloResponse
+	var resp data.LivenessResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	require.Equal(t, uint64(10), resp.Epoch)
 	require.Equal(t, 1, resp.PeerNumber)
+}
+
+func (ht *HealthTests) readiness(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/readiness", nil)
+	w := httptest.NewRecorder()
+	ht.handler.ServeHTTP(w, r)
+	require.Equal(t, http.StatusOK, w.Code)
 }

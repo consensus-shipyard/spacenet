@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Obtain number of lines per log file.
+log_file_lines="$1"
+[ "${log_file_lines}" -gt 0 ] || exit
+shift
+
+# Obtain maximal log archive size (in bytes)
+max_archive_size=$1
+[ "${max_archive_size}" -gt 0 ] || exit
+shift
+
+cd lotus || exit
+
+# Create log directories
+health_log_dir=~/spacenet-logs/health-$(date +%Y-%m-%d-%H-%M-%S_%Z)
+mkdir -p "$health_log_dir"
+
+# Start the Hello service.
+cd ~/spacenet/faucet/ || exit
+go build -o spacenet-health ./cmd/health || exit
+tmux new-session -d -s faucet
+tmux send-keys "export LOTUS_PATH=~/.lotus && ./spacenet-health --web-host \"0.0.0.0:9000\" --lotus-api-host=127.0.0.1:1234 2>&1 | ~/lotus/rotate-logs.sh ${health_log_dir} ${log_file_lines} ${max_archive_size}" C-m
