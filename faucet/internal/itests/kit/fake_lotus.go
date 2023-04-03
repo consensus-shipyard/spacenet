@@ -51,3 +51,7 @@ func (l *FakeLotus) NetPeers(context.Context) ([]peer.AddrInfo, error) {
 		},
 	}, nil
 }
+
+func (l *FakeLotus) ID(context.Context) (peer.ID, error) {
+	return "fakeID", nil
+}

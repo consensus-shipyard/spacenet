@@ -66,8 +66,7 @@ func run(log *logging.ZapEventLogger) error {
 		},
 	}
 
-	const prefix = "HEALTH"
-	help, err := conf.Parse(prefix, &cfg)
+	help, err := conf.Parse("HEALTH", &cfg)
 	if err != nil {
 		if errors.Is(err, conf.ErrHelpWanted) {
 			fmt.Println(help)

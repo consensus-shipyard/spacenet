@@ -9,4 +9,5 @@ type LivenessResponse struct {
 	Host                 string `json:"host"`
 	PeersToPublishMsgs   int    `json:"peers_to_publish_msgs"`
 	PeersToPublishBlocks int    `json:"peers_to_publish_blocks"`
+	PeerID               string `json:"peer_id"`
 }
