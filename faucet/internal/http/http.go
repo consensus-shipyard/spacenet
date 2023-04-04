@@ -33,8 +33,8 @@ func FaucetHandler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db d
 	return c.Handler(r)
 }
 
-func HealthHandler(logger *logging.ZapEventLogger, lotusClient LotusHealthAPI, build string) http.Handler {
-	h := NewHealth(logger, lotusClient, build)
+func HealthHandler(logger *logging.ZapEventLogger, lotusClient LotusHealthAPI, build string, check ...ValidatorHealthCheck) http.Handler {
+	h := NewHealth(logger, lotusClient, build, check...)
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/readiness", h.Readiness).Methods("GET")
 	r.HandleFunc("/liveness", h.Liveness).Methods("GET")

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"time"
 
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -28,18 +27,29 @@ type Health struct {
 	log   *logging.ZapEventLogger
 	node  LotusHealthAPI
 	build string
+	check ValidatorHealthCheck
 }
 
-func NewHealth(log *logging.ZapEventLogger, node LotusHealthAPI, build string) *Health {
-	return &Health{
+type ValidatorHealthCheck func() error
+
+func NewHealth(log *logging.ZapEventLogger, node LotusHealthAPI, build string, check ...ValidatorHealthCheck) *Health {
+	h := Health{
 		log:   log,
 		node:  node,
 		build: build,
 	}
+	if check == nil {
+		h.check = defaultValidatorHealthCheck
+	} else {
+		h.check = check[0]
+	}
+	return &h
 }
 
 // Liveness returns status info if the service is alive.
 func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	host, err := os.Hostname()
 	if err != nil {
 		host = "unavailable"
@@ -47,13 +57,13 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 
 	statusCode := http.StatusOK
 
-	status, err := h.node.NodeStatus(r.Context(), true)
+	status, err := h.node.NodeStatus(ctx, true)
 	if err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	version, err := h.node.Version(r.Context())
+	version, err := h.node.Version(ctx)
 	if err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)
 		return
@@ -61,7 +71,7 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Infow("liveness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
 
-	p, err := h.node.NetPeers(r.Context())
+	p, err := h.node.NetPeers(ctx)
 	if err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)
 		return
@@ -92,49 +102,56 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 
 // Readiness checks if the components are ready and if not will return a 500 status.
 func (h *Health) Readiness(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
-	defer cancel()
+	ctx := r.Context()
 
-	daemonStatus := "ok"
-	validatorStatus := "ok"
-	statusCode := http.StatusOK
+	h.log.Infow("readiness", "method", r.Method, "path", r.URL.Path, "remote", r.RemoteAddr)
 
+	ready := true
 	if _, err := h.node.Version(ctx); err != nil {
-		daemonStatus = "lotus not ready"
-		statusCode = http.StatusInternalServerError
+		h.log.Infow("failed to connect to daemon", "readiness", "error", err)
+		ready = false
 	}
 
-	if err := h.checkValidatorStatus(); err != nil {
-		validatorStatus = "validator not ready"
-		statusCode = http.StatusInternalServerError
+	// A node can be a bootstrap node or validator node. Bootstrap nodes run daemons only.
+	// We signal that a node is a bootstrap node by accessing /readiness endpoint with "boostrap" parameter.
+	isBootstrap := r.URL.Query().Get("bootstrap") != ""
+	fmt.Println(isBootstrap)
+
+	if !isBootstrap {
+		if err := h.checkValidatorStatus(); err != nil {
+			h.log.Infow("failed to connect to validator", "readiness", "error", err)
+			ready = false
+		}
 	}
 
-	h.log.Infow("readiness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remote", r.RemoteAddr)
+	if !ready {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	resp := struct {
-		DaemonStatus    string `json:"daemon_status"`
-		ValidatorStatus string `json:"validator_status"`
+		Status string `json:"status"`
 	}{
-		DaemonStatus:    daemonStatus,
-		ValidatorStatus: validatorStatus,
+		Status: "ok",
 	}
 
-	if err := web.Respond(r.Context(), w, resp, http.StatusOK); err != nil {
+	if err := web.Respond(ctx, w, resp, http.StatusOK); err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)
 		return
 	}
 }
 
 func (h *Health) checkValidatorStatus() error {
+	return h.check()
+}
+
+func defaultValidatorHealthCheck() error {
 	grep := exec.Command("grep", "[e]udico mir validator")
 	ps := exec.Command("ps", "ax")
 
 	pipe, _ := ps.StdoutPipe()
 	defer func(pipe io.ReadCloser) {
-		err := pipe.Close()
-		if err != nil {
-			h.log.Infow("checkValidatorStatus error", err)
-		}
+		pipe.Close() // nolint
 	}(pipe)
 
 	grep.Stdin = pipe

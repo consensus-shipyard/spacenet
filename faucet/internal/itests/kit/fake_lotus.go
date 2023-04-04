@@ -2,6 +2,7 @@ package kit
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -13,10 +14,17 @@ import (
 )
 
 type FakeLotus struct {
+	failedVersion bool
 }
 
 func NewFakeLotus() *FakeLotus {
 	return &FakeLotus{}
+}
+
+func NewFakeLotusWithFailedVersion() *FakeLotus {
+	return &FakeLotus{
+		failedVersion: true,
+	}
 }
 
 func (l *FakeLotus) MpoolPushMessage(_ context.Context, msg *types.Message, _ *api.MessageSendSpec) (*types.SignedMessage, error) {
@@ -40,6 +48,9 @@ func (l *FakeLotus) NodeStatus(_ context.Context, _ bool) (api.NodeStatus, error
 }
 
 func (l *FakeLotus) Version(_ context.Context) (api.APIVersion, error) {
+	if l.failedVersion {
+		return api.APIVersion{}, fmt.Errorf("failed to get version")
+	}
 	return api.APIVersion{Version: "1.0"}, nil
 
 }
