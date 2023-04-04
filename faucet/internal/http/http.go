@@ -12,7 +12,7 @@ import (
 	"github.com/filecoin-project/faucet/internal/faucet"
 )
 
-func Handler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, cfg *faucet.Config) http.Handler {
+func FaucetHandler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db datastore.Batching, shutdown chan os.Signal, cfg *faucet.Config) http.Handler {
 	faucetService := faucet.NewService(logger, lotus, db, cfg)
 
 	srv := NewWebService(logger, faucetService, cfg.BackendAddress)
@@ -31,4 +31,12 @@ func Handler(logger *logging.ZapEventLogger, lotus faucet.PushWaiter, db datasto
 	})
 
 	return c.Handler(r)
+}
+
+func HealthHandler(logger *logging.ZapEventLogger, lotusClient LotusHealthAPI, build string, check ...ValidatorHealthCheck) http.Handler {
+	h := NewHealth(logger, lotusClient, build, check...)
+	r := mux.NewRouter().StrictSlash(true)
+	r.HandleFunc("/readiness", h.Readiness).Methods("GET")
+	r.HandleFunc("/liveness", h.Liveness).Methods("GET")
+	return r
 }

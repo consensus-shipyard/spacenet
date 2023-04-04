@@ -70,7 +70,7 @@ func Test_Faucet(t *testing.T) {
 		WithdrawalAmount:       10,
 	}
 
-	srv := handler.Handler(log, lotus, store, shutdown, &cfg)
+	srv := handler.FaucetHandler(log, lotus, store, shutdown, &cfg)
 
 	db := faucetDB.NewDatabase(store)
 
