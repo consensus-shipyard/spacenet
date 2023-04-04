@@ -22,6 +22,12 @@
         cmd: scripts/start-bootstrap.sh spacenet-libp2p-bootstrap-{{ inventory_hostname }}.keyinfo '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
+- name: Start bootstrap node
+  hosts: "{{nodes | default('bootstrap[0]')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
     - name: Get bootstrap node identity
       ansible.builtin.fetch:
         src: .lotus/lotus-addr

@@ -18,4 +18,6 @@
 - import_playbook: start-bootstrap.yaml
 - import_playbook: start-daemons.yaml
 - import_playbook: start-validators.yaml
+- import_playbook: start-faucet.yaml
+- import_playbook: start-monitoring.yaml
 ...

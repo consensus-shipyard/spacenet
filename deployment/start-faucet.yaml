@@ -1,0 +1,17 @@
+# Starts the faucet service that can be used to distribute coins.
+# Assumes that the bootstrap node is up and running (see start-bootstrap.yaml).
+#
+# Applies to the first bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+
+---
+- name: Start Faucet
+  hosts: "{{nodes | default('bootstrap[0]')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Start Faucet server
+      ansible.builtin.script:
+        cmd: scripts/start-faucet.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
+...

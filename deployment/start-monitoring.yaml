@@ -1,0 +1,16 @@
+# Starts the health monitoring service that can be used to check the status of the system.
+# Assumes that all the nodes (bootstraps, daemons, and validators) are up and running.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Start Health monitoring
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Start Monitoring server
+      ansible.builtin.script:
+        cmd: scripts/start-health-monitoring.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
+...

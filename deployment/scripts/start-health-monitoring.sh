@@ -19,5 +19,5 @@ mkdir -p "$health_log_dir"
 # Start the Hello service.
 cd ~/spacenet/faucet/ || exit
 go build -o spacenet-health ./cmd/health || exit
-tmux new-session -d -s faucet
+tmux new-session -d -s health
 tmux send-keys "export LOTUS_PATH=~/.lotus && ./spacenet-health --web-host \"0.0.0.0:9000\" --lotus-api-host=127.0.0.1:1234 2>&1 | ~/lotus/rotate-logs.sh ${health_log_dir} ${log_file_lines} ${max_archive_size}" C-m

@@ -190,10 +190,24 @@ Starts the bootstrap node and downloads its identity to localhost (using setup.y
 
 Applies to the bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
 
+### `start-faucet.yaml`
+
+Starts the faucet service that can be used to distribute coins.
+Assumes that the bootstrap node is up and running (see start-bootstrap.yaml).
+
+Applies to the first bootstrap host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
 ### `start-daemons.yaml`
 
 Starts the Lotus daemons and creates connections among them and to the bootstrap node.
 Assumes that the bootstrap node is up and running (see start-bootstrap.yaml).
+
+Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+### `start-monitoring.yaml`
+
+Starts the health monitoring service that can be used to check the status of the system.
+Assumes that all the nodes (bootstraps, daemons, and validators) are up and running.
 
 Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
 
