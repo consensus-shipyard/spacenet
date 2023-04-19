@@ -17,20 +17,20 @@
           - spacenet-libp2p-bootstrap-{{ inventory_hostname }}.keyinfo
           - spacenet_faucet.key
 
-    - name: Start bootstrap node and faucet
+
+    - name: Start bootstrap node
       ansible.builtin.script:
         cmd: scripts/start-bootstrap.sh spacenet-libp2p-bootstrap-{{ inventory_hostname }}.keyinfo '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 
-- name: Start bootstrap node
-  hosts: "{{nodes | default('bootstrap[0]')}}"
-  gather_facts: False
-  become: False
-  tasks:
-
-    - name: Get bootstrap node identity
+    - name: Collect bootstrap node identities
       ansible.builtin.fetch:
         src: .lotus/lotus-addr
-        dest: bootstrap-identity
-        flat: True
+        dest: tmp-bootstrap-identities
+
+
+    - name: Combine bootstrap node identities into a single file
+      run_once: True
+      delegate_to: localhost
+      shell: 'rm -f bootstrap-identities && cat tmp-bootstrap-identities/*/.lotus/lotus-addr >> bootstrap-identities && rm -r tmp-bootstrap-identities'
 ...

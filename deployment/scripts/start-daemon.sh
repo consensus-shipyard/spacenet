@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Obtain bootstrap node's address as a parameter.
-bootstrap_addr="$1"
-[ -n "$bootstrap_addr" ] || exit
+bootstrap_addrs="$1"
+[ -n "$bootstrap_addrs" ] || exit
 shift
 
 # Obtain number of lines per log file.
@@ -38,5 +38,7 @@ tmux new-session -d -s lotus
 # Start the Lotus daemon and import the bootstrap key.
 tmux send-keys "./eudico mir daemon --bootstrap=true --mir-validator 2>&1 | ./rotate-logs.sh ${log_dir} ${log_file_lines} ${max_archive_size}" C-m
 ./eudico wait-api
-./eudico net connect "$bootstrap_addr"
+for addr in $bootstrap_addrs; do
+    ./eudico net connect "$addr"
+done
 ./eudico net listen | grep -vE '(/ip6/)|(127.0.0.1)' | grep -E '/ip4/.*/tcp/1357' > ~/.lotus/lotus-addr

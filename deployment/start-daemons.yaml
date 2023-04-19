@@ -9,12 +9,12 @@
   gather_facts: False
   become: False
   vars:
-    bootstrap_identity: "{{ lookup('file', 'bootstrap-identity') }}"
+    bootstrap_identities: "{{ lookup('file', 'bootstrap-identities') }}"
   tasks:
 
     - name: Start Lotus daemons
       ansible.builtin.script:
-        cmd: scripts/start-daemon.sh '{{ bootstrap_identity }}' '{{ log_file_lines }}' '{{ max_log_archive_size }}'
+        cmd: scripts/start-daemon.sh '{{ bootstrap_identities }}' '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 
 - import_playbook: connect-daemons.yaml
 ...
