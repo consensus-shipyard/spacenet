@@ -14,7 +14,7 @@
 [![Tests][tests-badge]][tests-url]
 [![Linting][lint-badge]][lint-url]
 
-> The current live deployment of Spacenet runs [v0.1.0 of Eudico](https://github.com/consensus-shipyard/lotus/releases/tag/v0.1.0)
+> The current live deployment of Spacenet runs [v0.2.0 of Eudico](https://github.com/consensus-shipyard/lotus/releases/tag/v0.2.0)
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. And did we forget to mention Spacenet comes with [Interplanetary Consensus (IPC)](https://ipc.space/) support?
@@ -60,7 +60,7 @@ You can run a full-node and connect it to Spacenet by running eudico (a fork of 
 git clone https://github.com/consensus-shipyard/lotus
 
 // The default (and latest stable) branch for the network is `spacenet`
-git checkout v0.1.0
+git checkout v0.2.0
 ```
 - Installing lotus and running all dependencies as described in the `README` of the [repo](https://github.com/consensus-shipyard/lotus)
 - Once you have all `lotus` dependencies installed you can run the following command to compile `eudico` with Spacenet support.
