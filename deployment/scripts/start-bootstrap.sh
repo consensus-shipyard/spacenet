@@ -37,6 +37,8 @@ ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
   EnableSplitstore = true
 [Chainstore.Splitstore]
   ColdStoreType = "discard"
+[Fevm]
+  EnableEthRPC = true
 ' > ~/.lotus/config.toml
 tmux send-keys "./eudico mir daemon --profile=bootstrapper --bootstrap=false 2>&1 | ./rotate-logs.sh ${bootstrap_log_dir} ${log_file_lines} ${max_archive_size}" C-m
 ./eudico wait-api
