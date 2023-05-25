@@ -54,12 +54,9 @@ In order to fund your account with Spacenet FIL we provide a faucet at [https://
 
 ## Getting started for developers
 You can run a full-node and connect it to Spacenet by running eudico (a fork of lotus that is able to run several consensus algorithms):
-- Cloning the modified lotus implementation (eudico) for Spacenet:
+- Cloning the modified lotus implementation (eudico) for Spacenet
 ```
-git clone https://github.com/consensus-shipyard/lotus
-
-// The stable branch for the network is `spacenet`
-git checkout spacenet
+git clone --branch spacenet https://github.com/consensus-shipyard/lotus
 ```
 - Installing lotus and running all dependencies as described in the `README` of the [repo](https://github.com/consensus-shipyard/lotus)
 - Once you have all `lotus` dependencies installed you can run the following command to compile `eudico` with Spacenet support.
