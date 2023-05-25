@@ -56,12 +56,10 @@ func Test_Faucet(t *testing.T) {
 
 	log := logging.Logger("TEST-FAUCET")
 
-	lotus := kit.NewFakeLotus()
+	lotus := kit.NewFakeLotusNoCrash()
 
 	addr, err := address.NewFromString(FaucetAddr)
 	require.NoError(t, err)
-
-	shutdown := make(chan os.Signal, 1)
 
 	cfg := faucet.Config{
 		FaucetAddress:          addr,
@@ -70,7 +68,7 @@ func Test_Faucet(t *testing.T) {
 		WithdrawalAmount:       10,
 	}
 
-	srv := handler.FaucetHandler(log, lotus, store, shutdown, &cfg)
+	srv := handler.FaucetHandler(log, lotus, store, &cfg)
 
 	db := faucetDB.NewDatabase(store)
 

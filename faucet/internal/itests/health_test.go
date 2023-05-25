@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/stretchr/testify/require"
 
 	"github.com/filecoin-project/faucet/internal/data"
+	"github.com/filecoin-project/faucet/internal/failure"
 	handler "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/faucet/internal/itests/kit"
 )
@@ -21,8 +23,9 @@ type HealthTests struct {
 
 func TestValidatorHealth(t *testing.T) {
 	log := logging.Logger("TEST-HEALTH")
-	lotus := kit.NewFakeLotus()
-	srv := handler.HealthHandler(log, lotus, "build")
+	lotus := kit.NewFakeLotusNoCrash()
+	d := failure.NewDetector(log, lotus, 100*time.Millisecond, time.Second)
+	srv := handler.HealthHandler(log, lotus, d, "build")
 	test := HealthTests{
 		handler: srv,
 	}
@@ -38,7 +41,6 @@ func (ht *HealthTests) livenessForValidator(t *testing.T) {
 	var resp data.LivenessResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	require.Equal(t, uint64(10), resp.Epoch)
 	require.Equal(t, 1, resp.PeerNumber)
 }
 
@@ -51,11 +53,12 @@ func (ht *HealthTests) readinessForValidator(t *testing.T) {
 
 func TestBootstrapHealth(t *testing.T) {
 	log := logging.Logger("TEST-HEALTH")
-	lotus := kit.NewFakeLotus()
+	lotus := kit.NewFakeLotusNoCrash()
 	check := func() error {
 		return fmt.Errorf("failed")
 	}
-	srv := handler.HealthHandler(log, lotus, "build", check)
+	d := failure.NewDetector(log, lotus, 100*time.Millisecond, time.Second)
+	srv := handler.HealthHandler(log, lotus, d, "build", check)
 	test := HealthTests{
 		handler: srv,
 	}
@@ -71,7 +74,6 @@ func (ht *HealthTests) livenessForBootstrap(t *testing.T) {
 	var resp data.LivenessResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	require.Equal(t, uint64(10), resp.Epoch)
 	require.Equal(t, 1, resp.PeerNumber)
 }
 
@@ -84,11 +86,12 @@ func (ht *HealthTests) readinessForBootstrap(t *testing.T) {
 
 func TestValidatorFailedHealth(t *testing.T) {
 	log := logging.Logger("TEST-HEALTH")
-	lotus := kit.NewFakeLotus()
+	lotus := kit.NewFakeLotusNoCrash()
 	check := func() error {
 		return fmt.Errorf("failed")
 	}
-	srv := handler.HealthHandler(log, lotus, "build", check)
+	d := failure.NewDetector(log, lotus, 100*time.Millisecond, time.Second)
+	srv := handler.HealthHandler(log, lotus, d, "build", check)
 	test := HealthTests{
 		handler: srv,
 	}
@@ -105,7 +108,8 @@ func (ht *HealthTests) failedReadinessForBootstrap(t *testing.T) {
 func TestValidatorFailedHealthWithFailedLotus(t *testing.T) {
 	log := logging.Logger("TEST-HEALTH")
 	lotus := kit.NewFakeLotusWithFailedVersion()
-	srv := handler.HealthHandler(log, lotus, "build")
+	d := failure.NewDetector(log, lotus, 100*time.Millisecond, time.Second)
+	srv := handler.HealthHandler(log, lotus, d, "build")
 	test := HealthTests{
 		handler: srv,
 	}

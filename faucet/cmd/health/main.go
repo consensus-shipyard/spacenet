@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/filecoin-project/faucet/internal/failure"
 	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/faucet/internal/platform/lotus"
 	"github.com/filecoin-project/lotus/api/client"
@@ -125,6 +126,11 @@ func run(log *logging.ZapEventLogger) error {
 	log.Infow("Successfully connected to Lotus node")
 
 	// =========================================================================
+	// Start Detector Service
+
+	d := failure.NewDetector(log, lotusClient, time.Minute, 3*time.Minute)
+
+	// =========================================================================
 	// Start API Service
 
 	log.Infow("startup", "status", "initializing HTTP API support")
@@ -134,7 +140,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.Host,
-		Handler:      handlers.RecoveryHandler()(app.HealthHandler(log, lotusClient, build)),
+		Handler:      handlers.RecoveryHandler()(app.HealthHandler(log, lotusClient, d, build)),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
@@ -166,6 +172,8 @@ func run(log *logging.ZapEventLogger) error {
 
 		ctx, cancel := context.WithTimeout(ctx, cfg.Web.ShutdownTimeout)
 		defer cancel()
+
+		d.Stop()
 
 		if err := api.Shutdown(ctx); err != nil {
 			api.Close() // nolint

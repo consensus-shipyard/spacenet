@@ -3,6 +3,7 @@ package kit
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -14,11 +15,25 @@ import (
 )
 
 type FakeLotus struct {
+	m             sync.Mutex
 	failedVersion bool
+	h             uint64
+	failed        bool
+	failedOn      uint64
 }
 
-func NewFakeLotus() *FakeLotus {
-	return &FakeLotus{}
+func NewFakeLotus(failed bool, failedOn uint64) *FakeLotus {
+	return &FakeLotus{
+		failed:   failed,
+		failedOn: failedOn,
+	}
+}
+
+func NewFakeLotusNoCrash() *FakeLotus {
+	return &FakeLotus{
+		failed:   false,
+		failedOn: 0,
+	}
 }
 
 func NewFakeLotusWithFailedVersion() *FakeLotus {
@@ -39,12 +54,23 @@ func (l *FakeLotus) StateWaitMsg(_ context.Context, _ cid.Cid, _ uint64, _ abi.C
 }
 
 func (l *FakeLotus) NodeStatus(_ context.Context, _ bool) (api.NodeStatus, error) {
-	return api.NodeStatus{
+	l.m.Lock()
+	defer l.m.Unlock()
+
+	s := api.NodeStatus{
 		SyncStatus: api.NodeSyncStatus{
-			Epoch:  uint64(10),
+			Epoch:  l.h,
 			Behind: uint64(0),
 		},
-	}, nil
+	}
+	if !l.failed {
+		l.h++
+	} else {
+		if l.h < l.failedOn {
+			l.h++
+		}
+	}
+	return s, nil
 }
 
 func (l *FakeLotus) Version(_ context.Context) (api.APIVersion, error) {

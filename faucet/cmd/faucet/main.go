@@ -199,7 +199,7 @@ func run(log *logging.ZapEventLogger) error {
 	api := http.Server{
 		TLSConfig: tlsConfig,
 		Addr:      cfg.Web.Host,
-		Handler: handlers.RecoveryHandler()(app.FaucetHandler(log, lotusNode, db, shutdown, &faucet.Config{
+		Handler: handlers.RecoveryHandler()(app.FaucetHandler(log, lotusNode, db, &faucet.Config{
 			FaucetAddress:          faucetAddr,
 			AllowedOrigins:         cfg.Web.AllowedOrigins,
 			BackendAddress:         cfg.Web.BackendHost,
