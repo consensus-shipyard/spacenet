@@ -1,0 +1,14 @@
+# Fetches logs from all hosts.
+#
+# Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
+---
+- name: Fetch logs
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  tasks:
+
+    - name: Download logs from host
+      ansible.builtin.synchronize: src=spacenet-logs dest=fetched-logs/{{ inventory_hostname }} mode=pull
+...
