@@ -13,7 +13,7 @@
 [![Tests][tests-badge]][tests-url]
 [![Linting][lint-badge]][lint-url]
 
-> The current live deployment of Spacenet runs [v0.2.0 of Eudico](https://github.com/consensus-shipyard/lotus/releases/tag/v0.2.0)
+> Check out the `spacenet` branch to connect to Spacenet.
 
 ## Why Spacenet?
 Spacenet is not _yet another_ Filecoin testnet. Its consensus layer has been modified to integrate [Mir](https://github.com/filecoin-project/mir), a distributed protocol implementation framework. The current version of Spacenet runs an implementation of the [Trantor BFT consensus](https://hackmd.io/P59lk4hnSBKN5ki5OblSFg) over Mir. And did we forget to mention Spacenet comes with [Interplanetary Consensus (IPC)](https://ipc.space/) support?
@@ -58,8 +58,8 @@ You can run a full-node and connect it to Spacenet by running eudico (a fork of 
 ```
 git clone https://github.com/consensus-shipyard/lotus
 
-// The default (and latest stable) branch for the network is `spacenet`
-git checkout v0.2.0
+// The stable branch for the network is `spacenet`
+git checkout spacenet
 ```
 - Installing lotus and running all dependencies as described in the `README` of the [repo](https://github.com/consensus-shipyard/lotus)
 - Once you have all `lotus` dependencies installed you can run the following command to compile `eudico` with Spacenet support.
@@ -77,13 +77,13 @@ The Spacenet blockchain is growing fast in size! If you are looking to tinker a 
 
 To connect to Spacenet through a Eudico Lite you need to configure `FULLNODE_API_INFO` to point to the following peer with the following `API_KEY`:
 ```
-FULLNODE_API_INFO=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIl19.w1-vwONiteLN0VlD9ccNujoPBXoFjkJJRyYva0SHah4:/ip4/52.29.194.50/tcp/1234 ./eudico mir daemon --lite
+FULLNODE_API_INFO=/dns4/api.spacenet.ipc.space/tcp/1234/http ./eudico mir daemon --lite
 ```
 To test that the connection has been successful you can try to create a new wallet and send some funds from the faucet. More info about Lotus/Eudico Lite can be found  [here](https://lotus.filecoin.io/lotus/install/lotus-lite/)
 
-> 📓 We are only providing read access through our current Eudico Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch through this [Contact form](https://docs.google.com/forms/d/1O3_kHb2WJhil9sqXOxgGGGsqkAA61J1rKMfnb5os5yo/edit) or in FIL Slack's #spacenet.
+> 📓 We are only providing read access through our current Eudico Lite endpoint, if you would like to have write or admin access to a Spacenet full-node to test the network without having to sync your own node get in touch in FIL Slack's #spacenet.
 
-In future versions of Spacenet, we will provide periodic snapshot to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
+In future versions of Spacenet, we will provide periodic snapshots to help developers sync their full-nodes in a tractable amount of time. You can follow the progress of this feature in the [following issue](https://github.com/consensus-shipyard/spacenet/issues/18)
 
 ## Getting started with  IPC
 
