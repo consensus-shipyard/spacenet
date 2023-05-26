@@ -43,7 +43,7 @@ func NewDetector(log *logging.ZapEventLogger, api lotus.API, checkInterval, thre
 
 func (d *Detector) run() {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	for {
 		select {
 		case <-d.stopChan:
