@@ -51,7 +51,7 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 
 	statusCode := http.StatusOK
 
-	if err := h.detector.IsFailed(); err != nil {
+	if err := h.detector.CheckProgress(); err != nil {
 		web.RespondError(w, http.StatusInternalServerError, err)
 		return
 	}

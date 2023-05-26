@@ -42,14 +42,17 @@ func NewDetector(log *logging.ZapEventLogger, api lotus.API, checkInterval, thre
 }
 
 func (d *Detector) run() {
+	ctx, cancel := context.WithCancel(context.Background())
+	
 	for {
 		select {
 		case <-d.stopChan:
+			cancel()
 			close(d.stopChan)
 			d.log.Infow("shutdown", "status", "detector stopped")
 			return
 		case <-d.ticker.C:
-			status, err := d.lotus.NodeStatus(context.Background(), true)
+			status, err := d.lotus.NodeStatus(ctx, true)
 			if err != nil {
 				d.log.Errorw("error", "detector", "unable to get block", err)
 			} else {
@@ -77,7 +80,7 @@ func (d *Detector) GetLastBlockHeight() uint64 {
 	return d.lastBlockHeight
 }
 
-func (d *Detector) IsFailed() error {
+func (d *Detector) CheckProgress() error {
 	d.m.Lock()
 	defer d.m.Unlock()
 

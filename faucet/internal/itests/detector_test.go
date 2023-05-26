@@ -20,7 +20,7 @@ func TestDetectorWhenBlockProduced(t *testing.T) {
 
 	for i := 0; i < 20; i++ {
 		time.Sleep(300 * time.Millisecond)
-		require.NoError(t, d.IsFailed())
+		require.NoError(t, d.CheckProgress())
 		h := d.GetLastBlockHeight()
 		require.Greater(t, h, lastBlockHeight)
 		lastBlockHeight = h
@@ -38,10 +38,10 @@ func TestDetectorWhenCrash(t *testing.T) {
 		time.Sleep(300 * time.Millisecond)
 		h := d.GetLastBlockHeight()
 		if h < 10 {
-			require.NoError(t, d.IsFailed())
+			require.NoError(t, d.CheckProgress())
 			require.Greater(t, h, lastBlockHeight)
 		} else if h > 10 {
-			require.Error(t, d.IsFailed())
+			require.Error(t, d.CheckProgress())
 			require.Equal(t, uint64(10), h)
 		}
 		lastBlockHeight = h
