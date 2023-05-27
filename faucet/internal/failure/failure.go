@@ -46,7 +46,7 @@ func (d *Detector) run() {
 	go func() {
 		<-d.stopChan
 		cancel()
-	}
+	}()
 
 	for {
 		select {
