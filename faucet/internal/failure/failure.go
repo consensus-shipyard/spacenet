@@ -47,8 +47,6 @@ func (d *Detector) run() {
 	for {
 		select {
 		case <-d.stopChan:
-			cancel()
-			close(d.stopChan)
 			d.log.Infow("shutdown", "status", "detector stopped")
 			return
 		case <-d.ticker.C:
