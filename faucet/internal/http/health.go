@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,34 +8,29 @@ import (
 	"os/exec"
 
 	logging "github.com/ipfs/go-log/v2"
-	"github.com/libp2p/go-libp2p/core/peer"
 
 	"github.com/filecoin-project/faucet/internal/data"
+	"github.com/filecoin-project/faucet/internal/failure"
+	"github.com/filecoin-project/faucet/internal/platform/lotus"
 	"github.com/filecoin-project/faucet/internal/platform/web"
-	"github.com/filecoin-project/lotus/api"
 )
 
-type LotusHealthAPI interface {
-	NodeStatus(ctx context.Context, inclChainStatus bool) (api.NodeStatus, error)
-	NetPeers(context.Context) ([]peer.AddrInfo, error)
-	Version(context.Context) (api.APIVersion, error)
-	ID(context.Context) (peer.ID, error)
-}
-
 type Health struct {
-	log   *logging.ZapEventLogger
-	node  LotusHealthAPI
-	build string
-	check ValidatorHealthCheck
+	log      *logging.ZapEventLogger
+	node     lotus.API
+	build    string
+	detector *failure.Detector
+	check    ValidatorHealthCheck
 }
 
 type ValidatorHealthCheck func() error
 
-func NewHealth(log *logging.ZapEventLogger, node LotusHealthAPI, build string, check ...ValidatorHealthCheck) *Health {
+func NewHealth(log *logging.ZapEventLogger, node lotus.API, d *failure.Detector, build string, check ...ValidatorHealthCheck) *Health {
 	h := Health{
-		log:   log,
-		node:  node,
-		build: build,
+		log:      log,
+		node:     node,
+		build:    build,
+		detector: d,
 	}
 	if check == nil {
 		h.check = defaultValidatorHealthCheck
@@ -56,6 +50,11 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 	}
 
 	statusCode := http.StatusOK
+
+	if err := h.detector.CheckProgress(); err != nil {
+		web.RespondError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	status, err := h.node.NodeStatus(ctx, true)
 	if err != nil {
@@ -115,7 +114,6 @@ func (h *Health) Readiness(w http.ResponseWriter, r *http.Request) {
 	// A node can be a bootstrap node or validator node. Bootstrap nodes run daemons only.
 	// We signal that a node is a bootstrap node by accessing /readiness endpoint with "boostrap" parameter.
 	isBootstrap := r.URL.Query().Get("bootstrap") != ""
-	fmt.Println(isBootstrap)
 
 	if !isBootstrap {
 		if err := h.checkValidatorStatus(); err != nil {
