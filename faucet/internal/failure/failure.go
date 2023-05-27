@@ -71,7 +71,7 @@ func (d *Detector) run() {
 
 func (d *Detector) Stop() {
 	d.ticker.Stop()
-	d.stopChan <- true
+	close(d.stopChan)
 }
 
 func (d *Detector) GetLastBlockHeight() uint64 {
