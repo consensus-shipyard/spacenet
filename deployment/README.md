@@ -159,6 +159,12 @@ and sets up a new Spacenet deployment.
 The nodes variable must not be set, as this playbook must distinguish between different kinds of nodes
 (such as bootstrap and validators).
 
+### `fetch-logs.yaml`
+
+Fetches logs from all hosts and stores them in the `fetched-logs` directory (one sub-directory per host).
+
+Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
+
 ### `kill.yaml`
 
 Kills running Lotus daemon and Mir validator.
