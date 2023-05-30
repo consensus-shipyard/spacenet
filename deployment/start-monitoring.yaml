@@ -4,13 +4,13 @@
 # Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
 
 ---
-- name: Start Health monitoring
+- name: Start health monitoring
   hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   tasks:
 
-    - name: Start Monitoring server
+    - name: Start monitoring service
       ansible.builtin.script:
         cmd: scripts/start-health-monitoring.sh '{{ log_file_lines }}' '{{ max_log_archive_size }}'
 ...
