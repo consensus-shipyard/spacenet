@@ -10,5 +10,5 @@
   tasks:
 
     - name: Stop Monitoring server
-      shell: "pkill spacenet-health"
+      shell: "killall spacenet-health; sleep 3; killall -9 spacenet-health; true"
 ...
