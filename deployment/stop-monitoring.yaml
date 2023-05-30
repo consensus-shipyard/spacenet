@@ -3,12 +3,12 @@
 # Applies to all hosts by default, unless other nodes are specified using --extra-vars "nodes=..."
 
 ---
-- name: Stop Health monitoring
+- name: Stop health monitoring
   hosts: "{{nodes | default('all')}}"
   gather_facts: False
   become: False
   tasks:
 
-    - name: Stop Monitoring server
+    - name: Stop monitoring service
       shell: "killall spacenet-health; sleep 3; killall -9 spacenet-health; true"
 ...
