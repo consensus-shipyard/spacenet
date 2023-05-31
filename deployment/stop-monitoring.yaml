@@ -10,5 +10,5 @@
   tasks:
 
     - name: Stop monitoring service
-      shell: "killall spacenet-health; sleep 3; killall -9 spacenet-health; true"
+      shell: "killall spacenet-health; sleep 3; killall -9 spacenet-health; true; tmux kill-session -t health"
 ...

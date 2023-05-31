@@ -224,6 +224,16 @@ Assumes that the Lotus daemons are up and running (see start-daemons.yaml).
 
 Applies to the validator host by default, unless other nodes are specified using --extra-vars "nodes=..."
 
+### `stop-monitoring.yaml`
+
+Stops the health monitoring services.
+Assumes that all the health services are running on the target nodes (bootstraps, daemons, and validators).
+
+### `update-faucet.yaml`
+
+Updates the faucet services by pulling the actual code from the repository.
+It doesn't recompile or start services.
+
 ### `update-nodes.yaml`
 
 Updates a given set of validators by fetching the configured code, recompiling it, and restarting the validators.
