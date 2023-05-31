@@ -1,0 +1,22 @@
+# Updates the faucet repo.
+# This script suggests that the environment for the faucet and monitoring is ready
+# and contains all dependencies.
+
+---
+- name: Update Faucet
+  hosts: "{{nodes | default('all')}}"
+  gather_facts: False
+  become: False
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/home/{{ ansible_user }}/go/bin"
+  tasks:
+
+    - name: "Pull from git: {{ spacenet_git_version }}"
+      ansible.builtin.git:
+        repo: "{{ spacenet_git_repo }}"
+        dest: ~/spacenet
+        single_branch: True
+        version: "{{ spacenet_git_version }}"
+        force: True
+        update: True
+...
