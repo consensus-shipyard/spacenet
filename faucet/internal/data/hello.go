@@ -1,7 +1,7 @@
 package data
 
 type LivenessResponse struct {
-	Version              string `json:"version"`
+	LotusVersion         string `json:"lotus_version"`
 	Build                string `json:"build"`
 	Epoch                uint64 `json:"epoch"`
 	Behind               uint64 `json:"behind"`
@@ -10,4 +10,5 @@ type LivenessResponse struct {
 	PeersToPublishMsgs   int    `json:"peers_to_publish_msgs"`
 	PeersToPublishBlocks int    `json:"peers_to_publish_blocks"`
 	PeerID               string `json:"peer_id"`
+	ServiceVersion       string `json:"service_version"`
 }

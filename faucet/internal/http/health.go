@@ -13,6 +13,7 @@ import (
 	"github.com/filecoin-project/faucet/internal/failure"
 	"github.com/filecoin-project/faucet/internal/platform/lotus"
 	"github.com/filecoin-project/faucet/internal/platform/web"
+	v "github.com/filecoin-project/faucet/pkg/version"
 )
 
 type Health struct {
@@ -82,7 +83,7 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := data.LivenessResponse{
-		Version:              version.String(),
+		LotusVersion:         version.String(),
 		Epoch:                status.SyncStatus.Epoch,
 		Behind:               status.SyncStatus.Behind,
 		PeersToPublishMsgs:   status.PeerStatus.PeersToPublishMsgs,
@@ -91,6 +92,7 @@ func (h *Health) Liveness(w http.ResponseWriter, r *http.Request) {
 		Host:                 host,
 		Build:                h.build,
 		PeerID:               id.String(),
+		ServiceVersion:       v.Version(),
 	}
 
 	if err := web.Respond(r.Context(), w, resp, http.StatusOK); err != nil {
@@ -107,7 +109,7 @@ func (h *Health) Readiness(w http.ResponseWriter, r *http.Request) {
 
 	ready := true
 	if _, err := h.node.Version(ctx); err != nil {
-		h.log.Infow("failed to connect to daemon", "readiness", "error", err)
+		h.log.Errorw("failed to connect to daemon", "source", "readiness", "ERROR", err)
 		ready = false
 	}
 
@@ -117,7 +119,7 @@ func (h *Health) Readiness(w http.ResponseWriter, r *http.Request) {
 
 	if !isBootstrap {
 		if err := h.checkValidatorStatus(); err != nil {
-			h.log.Infow("failed to connect to validator", "readiness", "error", err)
+			h.log.Errorw("failed to connect to validator", "source", "readiness", "ERROR", err)
 			ready = false
 		}
 	}

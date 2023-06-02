@@ -16,8 +16,11 @@ cd lotus || exit
 health_log_dir=~/spacenet-logs/health-$(date +%Y-%m-%d-%H-%M-%S_%Z)
 mkdir -p "$health_log_dir"
 
+tag=$(git describe --tags 2>/dev/null || echo "unk-$(git rev-parse --short=10 HEAD)")
+flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${tag}"
+
 # Start the Hello service.
 cd ~/spacenet/faucet/ || exit
-go build -o spacenet-health ./cmd/health || exit
+go build -o spacenet-health -ldflags "$flags" ./cmd/health || exit
 tmux new-session -d -s health
 tmux send-keys "export LOTUS_PATH=~/.lotus && ./spacenet-health --web-host \"0.0.0.0:9000\" --lotus-api-host=127.0.0.1:1234 2>&1 | ~/lotus/rotate-logs.sh ${health_log_dir} ${log_file_lines} ${max_archive_size}" C-m

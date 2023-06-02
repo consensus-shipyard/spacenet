@@ -19,10 +19,9 @@ import (
 	"github.com/filecoin-project/faucet/internal/failure"
 	app "github.com/filecoin-project/faucet/internal/http"
 	"github.com/filecoin-project/faucet/internal/platform/lotus"
+	"github.com/filecoin-project/faucet/pkg/version"
 	"github.com/filecoin-project/lotus/api/client"
 )
-
-var build = "develop"
 
 func main() {
 	logger := logging.Logger("SPACENET-HEALTH")
@@ -62,7 +61,7 @@ func run(log *logging.ZapEventLogger) error {
 		}
 	}{
 		Version: conf.Version{
-			Build: build,
+			Build: version.Version(),
 			Desc:  "Spacenet Health Service",
 		},
 	}
@@ -81,7 +80,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	ctx := context.Background()
 
-	log.Infow("starting service", "version", build)
+	log.Infow("starting service", "version", version.Version())
 	defer log.Infow("shutdown complete")
 
 	out, err := conf.String(&cfg)
@@ -90,7 +89,7 @@ func run(log *logging.ZapEventLogger) error {
 	}
 	log.Infow("startup", "config", out)
 
-	expvar.NewString("build").Set(build)
+	expvar.NewString("build").Set(version.Version())
 
 	// =========================================================================
 	// Initialize authentication support
@@ -140,7 +139,7 @@ func run(log *logging.ZapEventLogger) error {
 
 	api := http.Server{
 		Addr:         cfg.Web.Host,
-		Handler:      handlers.RecoveryHandler()(app.HealthHandler(log, lotusClient, d, build)),
+		Handler:      handlers.RecoveryHandler()(app.HealthHandler(log, lotusClient, d, version.Version())),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
