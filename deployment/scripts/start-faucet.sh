@@ -21,14 +21,11 @@ tmux kill-session -t faucet
 cd lotus || exit
 ./eudico wallet import --as-default --format=json-lotus spacenet_faucet.key
 
-gittag=$(git tag -l --sort=-creatordate | head -n 1)
-: ${gittag:="unk"}
-githash=$(git rev-parse --short=8 HEAD)
-flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${gittag}"
-flags+=" -X=github.com/filecoin-project/faucet/pkg/version.githash=${githash}"
+tag=$(git describe --tags 2>/dev/null || echo "unk-$(git rev-parse --short=10 HEAD)")
+flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${tag}"
 
 # Start the Faucet.
 cd ~/spacenet/faucet/ || exit
-go build -o spacenet-faucet -ldflags $flags ./cmd/faucet || exit
+go build -o spacenet-faucet -ldflags "$flags" ./cmd/faucet || exit
 tmux new-session -d -s faucet
 tmux send-keys "export LOTUS_PATH=~/.lotus && ./spacenet-faucet --web-host \"0.0.0.0:8000\" --web-allowed-origins \"*\" --web-backend-host \"https://spacenet.consensus.ninja/fund\" --filecoin-address=t1jlm55oqkdalh2l3akqfsaqmpjxgjd36pob34dqy --lotus-api-host=127.0.0.1:1234 2>&1 | ~/lotus/rotate-logs.sh ${faucet_log_dir} ${log_file_lines} ${max_archive_size}" C-m

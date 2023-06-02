@@ -1,12 +1,9 @@
 package version
 
-import "fmt"
-
 var (
-	gittag  = "unk"
-	githash = "unk"
+	gittag = "unk"
 )
 
 func Version() string {
-	return fmt.Sprintf("%s-%s", gittag, githash)
+	return gittag
 }
