@@ -24,8 +24,8 @@ cd lotus || exit
 gittag=$(git tag -l --sort=-creatordate | head -n 1)
 : ${gittag:="unk"}
 githash=$(git rev-parse --short=8 HEAD)
-flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${gittag} "
-flags+="-X=github.com/filecoin-project/faucet/pkg/version.githash=${githash}"
+flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${gittag}"
+flags+=" -X=github.com/filecoin-project/faucet/pkg/version.githash=${githash}"
 
 # Start the Faucet.
 cd ~/spacenet/faucet/ || exit

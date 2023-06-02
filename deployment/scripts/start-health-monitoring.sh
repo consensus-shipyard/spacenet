@@ -16,11 +16,11 @@ cd lotus || exit
 health_log_dir=~/spacenet-logs/health-$(date +%Y-%m-%d-%H-%M-%S_%Z)
 mkdir -p "$health_log_dir"
 
-gittag=$(git tag -l --sort=-creatordate | head -n 1)
+gittag=$(git tag -l --sort=-creatordate | head -n 1 || echo "unk")
 : ${gittag:="unk"}
 githash=$(git rev-parse --short=8 HEAD)
-flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${gittag} "
-flags+="-X=github.com/filecoin-project/faucet/pkg/version.githash=${githash}"
+flags="-X=github.com/filecoin-project/faucet/pkg/version.gittag=${gittag}"
+flags+=" -X=github.com/filecoin-project/faucet/pkg/version.githash=${githash}"
 
 # Start the Hello service.
 cd ~/spacenet/faucet/ || exit
