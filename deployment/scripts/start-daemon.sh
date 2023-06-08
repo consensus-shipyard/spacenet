@@ -26,7 +26,7 @@ mkdir -p "$log_dir"
 # (discard is only enabled in bootstraps for now)
 mkdir -p ~/.lotus
 echo '[Libp2p]
-ListenAddresses = ["/ip4/0.0.0.0/tcp/1357"]
+  ListenAddresses = ["/ip4/0.0.0.0/tcp/1357"]
 [Chainstore]
   EnableSplitstore = true
 ' > ~/.lotus/config.toml
