@@ -31,8 +31,10 @@ tmux new-session -d -s lotus
 # Start the Lotus daemon and import the bootstrap key.
 mkdir -p ~/.lotus/keystore && chmod 0700 ~/.lotus/keystore
 ./lotus-shed keyinfo import "${bootstrap_key}"
-echo '[Libp2p]
-ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
+echo '[API]
+  ListenAddress = "/ip4/0.0.0.0/tcp/1234/http"
+[Libp2p]
+  ListenAddresses = ["/ip4/0.0.0.0/tcp/1347"]
 [Chainstore]
   EnableSplitstore = true
 [Chainstore.Splitstore]
