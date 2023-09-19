@@ -1,5 +1,7 @@
 ![](./assets/spacenet-header.png)
 
+> ‼️ Spacenet has been deprecated in favour of Calibration as the recommended root network. This repo is now archived, its content stale.
+
 # Spacenet
 > A new-generation Filecoin IPC testnet.
 >
